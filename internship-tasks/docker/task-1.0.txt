@@ -1,0 +1,60 @@
+# Task 1.0 - Docker Installation and Verification Notes
+
+## Mandatory Questions
+
+1. What is Docker?
+Docker is an open-source platform that packages applications and their dependencies into standardized units called containers, 
+ensuring they run consistently across any environment.
+
+
+2. What is the Docker daemon, and what is its responsibility?
+The Docker daemon (`dockerd`) is the background service running on the host OS. 
+It does the heavy lifting: managing Docker objects like images, containers, networks, and volumes.
+
+
+3. What is the Docker CLI?
+The Docker CLI (Command Line Interface) is a Go-based client application. It does not execute container tasks itself, 
+instead, it accepts human-readable commands (like docker run) and translates them into REST API requests, 
+which are then sent to the Docker Daemon to be processed
+
+4. How does the Docker CLI communicate with the Docker daemon?
+The CLI communicates with the daemon using a REST API. On a local Linux machine, 
+this happens over a UNIX socket (`/var/run/docker.sock`), If the Daemon is on a remote server, the communication happens over a standard TCP network socket.
+
+5. What is a Docker registry?
+A Docker registry is a stateless, highly scalable server-side application that stores and lets 
+you distribute Docker images. Docker Hub is the default public registry.
+
+
+6. Explain Docker architecture in simple terms: client, daemon, registry.
+- Client (CLI): CLI is (Command Line Interface) It does not run containers itself, it is purely an interface that constructs HTTP REST API requests and sends them to the daemon via a UNIX socket (/var/run/docker.sock) or a TCP port.
+- Daemon (Server): A persistent background process that listens for API requests. It manages all Docker objects (images, containers, networks, volumes)
+                   by interacting directly with the Linux kernel's features (like namespaces for isolation and cgroups for resource limits).
+- Registry: A highly scalable, stateless server-side application that stores and distributes Docker images. When the daemon needs an image that isn't on the host machine, 
+            it pulls it from here.(Docker Hub is the default public registry; AWS ECR or Azure ACR are common private ones).
+
+7. Why is Docker considered lightweight compared to virtual machines?
+VMs require a full, heavy Guest Operating System (like installing Windows inside Linux) to run an app. 
+Docker containers do not have their own OS; they share the Host Operating System's kernel, making them start in milliseconds and use very little RAM.
+
+
+8. What parts are packaged inside a Docker image, and what parts are shared from the host OS?
+- Docker Image: Everything to specific application needs to run, except the core operating system brain.
+    * application code (e.g., Python scripts, React build).
+    * Language Runtimes (e.g., Node.js, Python, Java JRE).
+    * Specific software libraries and dependencies (e.g., npm packages, pip modules).
+    * Basic system tools and file structures (e.g., a lightweight Alpine or Ubuntu user-space).
+
+- Shared from Host OS: The container shares the OS Kernel (the core "brain" of the operating system).
+Instead of installing a full, heavy operating system (like Windows or a full Ubuntu desktop) inside the container, 
+the container just uses the Host computer's existing ability to talk to the CPU, manage RAM, and connect to the Wi-Fi/Network.
+
+
+9. Why did hello-world run and then exit?
+A Docker container only stays running as long as the main process inside it is running. The `hello-world` image is programmed with a single command: print a message to the screen. 
+Once it prints the message, the process finishes, and the container naturally gracefully exits with status code 0.
+
+
+10. Why is verifying Docker setup important before starting real container tasks?
+Because Docker involves multiple moving parts. If the daemon is down, or if the CLI doesn't have permissions to talk to the UNIX socket, commands will fail. 
+Verifying communication and architecture first ensures that future errors are actually application errors, not underlying infrastructure/setup failures.

@@ -1,0 +1,67 @@
+# Task 1.1 - Run, Inspect, and Understand a Short-Lived Container
+
+## Mandatory Questions
+
+1. What is the difference between a Docker image and a Docker container?
+Docker image is a static, read-only template or blueprint that contains the application code and dependencies. 
+Docker container is a dynamic, running (or exited) instance of that image with an added read-write layer.
+
+
+2. What command did the busybox container execute?
+    => docker run busybox echo "Hello from Docker"
+* Docker did the following:
+* Started a container from the busybox image
+* Executed the command:
+    => echo "Hello from Docker"
+* Printed the output
+* Exited immediately after the command finished
+busybox is a minimal image that runs whatever command you pass, If no long-running process is given → container stops after execution
+
+
+3. Why did the container stop after the command finished?
+A Docker container runs one main process (the command provide).
+    => docker run busybox echo "Hello from Docker"
+* The main process = echo "Hello from Docker"
+* This is a short-lived command
+* It runs → prints output → completes
+>> What Docker Does
+* Starts container
+* Runs the main process
+* Waits for the process to finish
+* When it finishes → container automatically stops
+Container lifecycle = main process lifecycle, If the process stops → container stops, If the process keeps running → container stays running
+
+
+4. Why does the container not appear in docker ps but appear in docker ps -a?
+`docker ps` only lists currently active/running containers. Because our container finished its task and stopped, it moves to an exited state. 
+`docker ps -a` lists *all* containers, including those that have exited or stopped.
+
+
+5. Why is a container exit not always an error?
+A container exit is not always an error because a container is only designed to live as long as its main process (PID 1). 
+If the container was created to execute a short-lived task—like a database migration or a scheduled cron job—shutting down simply means the task was completed perfectly. 
+We only consider it an error if the container was supposed to be a continuous background service, like a Web Server."
+
+6. What is the purpose of docker logs?
+`docker logs` allows you to view the standard output (`stdout`) and standard error (`stderr`) of a container. It is crucial for inspecting what happened inside a container *after* it has stopped, 
+or for monitoring a running background application.
+
+
+7. What is the purpose of docker rm?
+`docker rm` removes a stopped container from the host system, freeing up disk space. If you don't remove exited containers, 
+they will accumulate and eventually consume all available storage.
+
+
+8. Why can multiple containers be created from the same image?
+Multiple containers can be created from the same image because Docker images are immutable (read-only). When you run a container, 
+Docker does not modify the original image. Instead, it places a thin, temporary "read-write layer" on top of the base image for that specific container. 
+Since the underlying base image is locked and never changes, thousands of independent containers can safely share that exact same image simultaneously
+
+9. What is the main process idea in a container?
+The main process (PID 1) is the heart of the container. A container is built to run just one specific application or task. 
+The rule is simple: as long as that main process is running, the container stays alive. The exact millisecond that process finishes or crashes, 
+the container automatically shuts down.
+
+10. How does this task help later when debugging containers in production?
+It teaches you the exact workflow for finding and fixing a crashed application. Instead of panicking when an app suddenly disappears from the active docker ps list, 
+you now know to use docker ps -a to find the stopped container, and then use docker logs to read the exact error message that caused it to crash.

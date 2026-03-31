@@ -1,0 +1,37 @@
+# Kubernetes
+alias k='kubectl'
+alias kgp='kubectl get pods'
+alias kgn='kubectl get nodes'
+alias kgs='kubectl get svc'
+alias kd='kubectl describe'
+alias kl='kubectl logs -f'
+alias kex='kubectl exec -it'
+alias kns='kubectl config set-context --current --namespace'
+alias kctx='kubectl config use-context'
+
+# Terraform
+alias tf='terraform'
+alias tfi='terraform init'
+alias tfp='terraform plan'
+alias tfa='terraform apply'
+alias tfd='terraform destroy'
+
+# Docker
+alias d='docker'
+alias dc='docker compose'
+alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
+alias dclean='docker system prune -af'
+alias dlogs='docker logs -f'
+
+# Git
+alias gs='git status'
+alias gp='git pull --rebase'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias glog='git log --oneline --graph --decorate'
+
+# General
+alias ll='ls -lah'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias grep='grep --color=auto'
