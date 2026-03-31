@@ -1,0 +1,80 @@
+
+1. What is a Dockerfile?
+It as a blueprint. It is a simple text file containing a step-by-step list of instructions that tells Docker exactly how to build a custom environment for application.
+
+
+2. Why is a Dockerfile required when packaging an application into an image?
+It guarantees reproducibility. By writing down the environment requirements as code, ensure that anyone, anywhere, 
+can build the exact same setup without running into the classic "it works on my machine" problem.
+
+
+3. What does docker build do?
+It reads the instructions in Dockerfile from top to bottom, executes them one by one, and bakes the final result into a permanent, 
+read-only template called a Docker image.
+
+
+4. What does docker run do?
+It takes static, read-only blueprint (the Docker image) and spins it up into a live, interactive, 
+running application (the container).
+
+
+
+5. What is the purpose of requirements.txt in this task?
+A requirements.txt file is a standard plain-text file used in Python projects to define dependencies. 
+It lists all the external libraries and their specific version numbers required for the application to function properly.
+In the context of this Docker task, the Dockerfile reads this file during the build process (usually via a command like pip install -r requirements.txt). 
+This ensures that the exact same packages are installed into the container's isolated environment every single time, 
+preventing the application from crashing due to missing modules
+
+6.Why must the Flask app bind to 0.0.0.0 inside the container?
+By default, Flask binds to 127.0.0.1 (localhost), meaning it will only listen to traffic originating from inside its own isolated container. 
+Binding it to 0.0.0.0 opens it up to listen to all network interfaces, allowing requests from host computer to actually reach the app.
+
+
+7. What does -p 5000:5000 mean?
+It is a port mapping rule. It bridges the gap between physical computer and the isolated container by 
+telling Docker: "Take any traffic hitting port 5000 on my host machine and forward it directly to port 5000 inside the container."
+
+
+8. What is the purpose of WORKDIR in the Dockerfile?
+It establishes the default working directory inside the container. It is the equivalent of running a cd command, 
+ensuring that any subsequent files copy or commands run happen inside that specific folder.
+
+
+9. What is the difference between RUN and CMD in the Dockerfile?
+RUN executes commands during the image build process (e.g., pip install to install software) and bakes the results into the image.
+CMD is the default command that executes after the container actually starts running (e.g., launching Flask web server).
+
+
+10. Which project files are included in the Docker image?
+Only the files explicitly instruct Docker to include using the COPY command. In this task, that is strictly app.py script and requirements.txt file.
+
+
+11. What is the purpose of docker logs in this task?
+It lets view the standard output of running application. If Python script crashes or want to see if web requests are coming through, 
+this is first stop for troubleshooting.
+
+
+12. What is the purpose of docker inspect in this task?
+It acts like an X-ray for your container. It outputs a detailed JSON file showing exactly how the container is configured under the hood, 
+including its internal IP address, active port bindings, and environment variables.
+
+
+13. What is the purpose of docker exec in this task?
+It allows to open a live terminal shell (like sh or bash) directly inside an already running container. 
+It is the ultimate debugging tool for poking around the internal file system to verify files are in the right place.
+
+
+14. Why did the Flask container stay running?
+A container only stays alive as long as its primary background process is active. Because the Flask web server 
+continuously runs and waits for incoming HTTP requests, the container remains awake to support it.
+
+
+15. Why does removing the container not remove the image?
+Because the image is a permanent blueprint, and the container is just a disposable instance built from it. 
+Deleting the instance destroys the temporary runtime layer, but leaves your original blueprint completely untouched so can reuse it later.
+
+
+16. How does this task prepare the learner for production container workflows?
+It walks through the exact, foundational lifecycle used in real-world DevOps. Writing the code, defining the infrastructure as code (Dockerfile), 
+building a portable artifact (docker build), and deploying it (docker run) is the exact sequence that modern CI/CD pipelines automate in production environments.
