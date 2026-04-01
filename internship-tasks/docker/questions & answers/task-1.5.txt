@@ -1,0 +1,74 @@
+1. What is the main process inside a Docker container?
+It is the primary application or command that the container was created to execute (usually defined by the 
+CMD instruction in the Dockerfile). It is essentially the "heartbeat" of the container.
+
+
+2. Why does a container stop when the main process exits?
+Its only purpose is to provide an isolated environment for that single main process. Once that specific job is finished, 
+the container automatically shuts down to free up system resources.
+
+
+3. Why did the busybox container exit immediately?
+Because its main process was just a simple echo command. It printed "short lived container" to the screen, 
+successfully finished its only task, and naturally shut down in a fraction of a second.
+
+
+4. Why did the nginx container keep running?
+Because its main process is a web server that continuously listens for incoming network traffic. 
+Since the web server never naturally "finishes," the process stays active, keeping the container awake indefinitely.
+
+
+5. What is the difference between a normal exit and a manual stop?
+Normal Exit: The application inside the container finished its task (like the busybox echo) or crashed on its own.
+Manual Stop: The admin explicitly intervened and told Docker to gracefully shut down an actively running application by using the docker stop command.
+
+
+6. What does exit code 0 usually indicate?
+It means "Success." The container's main process finished its job perfectly without encountering any errors. 
+(Conversely, any number other than 0 usually indicates a crash or an error).
+
+
+7. What is the purpose of docker logs in lifecycle debugging?
+If a container dies unexpectedly, can't log into it to see what went wrong. docker logs is the only way to read the 
+final error messages or crash reports the application spit out right before it died.
+
+
+8. What is the purpose of docker inspect in lifecycle debugging?
+It gives the raw facts. If a container failed, docker inspect tells the exact numeric Exit Code and the 
+precise timestamp of when the crash occurred, which helps cross-reference with other system events.
+
+
+9. What is the purpose of docker top?
+It acts like a mini Task Manager. It lists the live Linux processes currently running inside an active container, 
+proving exactly what is keeping a long-running container alive.
+
+
+10. What is the difference between docker run and docker start?
+docker run creates a brand new container from an image and turns it on.
+docker start simply wakes up an already existing, but currently stopped, container.
+
+
+11. What is the difference between docker stop and docker rm?
+docker stop gracefully shuts down a running container, but it remains saved on  hard drive (can see it with docker ps -a).
+docker rm completely deletes the stopped container and its data from  system permanently.
+
+
+12. What is the difference between docker start and docker restart?
+docker start powers on a container that is currently dead/stopped.
+docker restart takes a currently running container, stops it, and immediately turns it back on (which is very useful for forcing an app to read a new configuration).
+
+
+13. Why is it important to understand lifecycle state before debugging production containers?
+Because a stopped container requires a completely different troubleshooting approach than a running one. cannot open a live terminal (docker exec) into a dead container, 
+so knowing the state dictates whether need to rely on logs/inspect, or if can jump inside to troubleshoot interactively.
+
+
+14. How is a container lifecycle different from a virtual machine lifecycle?
+A Virtual Machine boots up a full operating system and stays on until physically turn it off, regardless of whether any apps are actually doing anything. 
+A container only lives exactly as long as its one specific application is actively working.
+
+
+15. How does this task prepare for real Docker troubleshooting?
+In production, containers stop and restart all the time. This task teaches not to panic when see an "Exited" status. 
+It teaches to differentiate between a container that naturally finished its job, one that was manually stopped, 
+and one that crashed—which is the exact foundation of real-world incident response.
