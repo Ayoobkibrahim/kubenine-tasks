@@ -19,7 +19,8 @@ alias tfd='terraform destroy'
 # Docker
 alias d='docker'
 alias dc='docker compose'
-alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
+alias dps='docker ps'
+alias dpsa='docker ps -a'
 alias dclean='docker system prune -af'
 alias dlogs='docker logs -f'
 
