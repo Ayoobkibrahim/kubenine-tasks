@@ -1,0 +1,72 @@
+1. Why are Docker containers stateless by default?
+Because containers are designed to be disposable. Any files created or modified inside a container are written to a temporary "read-write" layer. 
+When the container is deleted, that temporary layer—and all the data inside it—is instantly destroyed.
+
+
+2. What is a Docker volume?
+Think of a volume as a highly secure, permanent USB drive that Docker manages.  plug it into a container, 
+the container saves data to it, and when  destroy the container,  keep the USB drive safely on system with all the data intact.
+
+
+3. How is a Docker volume different from normal container storage?
+Normal container storage is tied directly to the lifecycle of the container (if the container dies, the data dies). 
+A Docker volume lives entirely outside the container's lifecycle. It exists independently on host machine until  explicitly tell Docker to delete it.
+
+
+4. Why does MySQL need persistent storage?
+Because databases hold critical user data. If  run a database container without a volume, the moment  restart, update, 
+or crash that container, entire database is wiped clean. Persistent storage prevents catastrophic data loss.
+
+
+5. What does -v mysql-data:/var/lib/mysql mean?
+It is a volume mounting rule. It tells Docker: "Take my permanent volume named mysql-data and plug it into the container 
+at the exact folder path /var/lib/mysql (which is where MySQL naturally saves all its database files)."
+
+
+6. What is the purpose of docker volume create?
+docker volume create like buying and labeling a new USB flash drive.  are getting the storage ready so that when 
+ finally spin up database container,  already have a safe, specific place to "plug in" and save data.
+
+
+7. What is the purpose of docker volume inspect?
+It tells  exactly where Docker is hiding data. It outputs a JSON file that reveals the physical file path 
+(the Mountpoint) on actual host machine where those volume files are safely stored.
+
+
+8. What did docker inspect show about the MySQL container's mounts?
+It verified the connection. Under the "Mounts" section, it proved that the container was successfully wired up, 
+showing the source (mysql-data volume) mapped to the correct destination inside the container.
+
+
+9. Why did the data survive after the first container was deleted?
+Because the data was never written to the container in the first place. Because of volume mount, every time MySQL tried to save a row of data, 
+Docker bypassed the container's temporary storage and wrote it directly to permanent mysql-data volume.
+
+
+10. What is the difference between deleting a container and deleting a volume?
+Deleting a container is just turning off the compute engine. It is a completely normal, routine operation.
+Deleting a volume is permanently destroying the actual hard drive. It is a catastrophic operation if  actually need that data.
+
+
+11. Why is it dangerous to run databases in containers without persistent storage?
+It guarantees a total loss of data. In production, containers are routinely killed and recreated for updates or scaling. 
+If data isn't safely stored outside the container on a volume, routine maintenance becomes a destructive event.
+
+
+12. Why was it helpful to use docker exec in this task?
+Because it let  prove the data was real. By opening a live terminal inside the container, 
+ log directly into the MySQL database, write SQL commands, insert data, and visually verify that the table existed.
+
+
+13. What did docker stats and docker top show you?
+docker stats showed the live heartbeat of the database—exactly how much RAM and CPU MySQL was consuming.
+docker top showed the actual Linux process IDs (PIDs) running the database engine inside the isolated container.
+
+
+14. the most critical rule of modern infrastructure: Decoupling Compute from State. In Kubernetes or Compose, 
+ will constantly destroy and recreate application containers (Compute) while ensuring the underlying storage volumes (State) remain untouched. 
+Understanding this manual volume mounting process is the foundation for managing massive cloud-native databases.
+
+
+15. All the SQL data  created (like the users 'Alice' and 'Bob') would be permanently deleted from host machine. 
+The next time  spin up a MySQL container, it would start with a completely empty, factory-reset database.
