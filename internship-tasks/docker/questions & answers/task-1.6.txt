@@ -1,0 +1,59 @@
+1. What is a Docker image layer?
+Docker image like a multi-layered cake. Every single instruction in  Dockerfile (like COPY or RUN) makes a new, 
+read-only slice of that cake directly on top of the previous one. Together, these stacked layers make up the final image.
+
+
+2. How does Docker decide whether a cached step can be reused?
+Docker looks at the current instruction and the files it references. If neither the command itself nor the contents of the files being copied have changed since the last build, 
+Docker says, "I already did this," and instantly pulls the result from its cache instead of doing the work again.
+
+
+3. Why was the second build faster when nothing changed?
+Because Docker didn't actually do any work! It saw that absolutely nothing in  files or instructions had changed, 
+so it just loaded every single layer directly from its local cache, dropping the build time to near zero.
+
+
+4. Why did changing app.py rebuild fewer layers than changing requirements.txt?
+It all comes down to where they are positioned in the Dockerfile. app.py is copied at the very end, so changing it only invalidates that final, 
+tiny layer. Changing requirements.txt (which is copied earlier) forces Docker to rebuild that layer and every single layer that comes after it.
+
+
+5. Why does changing one step often cause later steps to rebuild too?
+Because of the domino effect. Each layer depends entirely on the layer beneath it. If change step 3, 
+Docker has to throw away the cached layers for steps 4, 5, and 6, because the underlying foundation they were built upon has changed.
+
+
+6. Why does Docker process the Dockerfile top to bottom?
+Because building an environment is a sequential process. cannot run  application code before install Python, 
+and cannot install Python packages before copy the requirements file. It has to build the foundation before adding the roof.
+
+
+7. Why is requirements.txt usually copied before application source files?
+This is a classic Docker optimization trick!  application code (app.py) changes constantly, but  dependencies (like Flask) rarely change. 
+By copying requirements.txt and running pip install first, we lock those heavy downloads into the cache. When later modify  code, 
+Docker can skip the slow installation step entirely.
+
+
+8. Why should frequently changing files usually be copied later in the Dockerfile?
+To protect  cache. If put frequently changing files at the top of  Dockerfile, will bust the cache on every single code commit, 
+forcing Docker to slowly rebuild everything from scratch. Putting them at the bottom ensures only the final, fastest steps are rebuilt.
+
+
+9. What does docker history help understand?
+It acts like a receipt for  image. It shows exactly which commands created which layers, how much data each layer added (in megabytes), 
+and helps hunt down where  image is getting bloated
+
+
+10. How does Docker build cache help in CI/CD pipelines?
+It saves massive amounts of time and compute costs. In a CI/CD pipeline, might build an image dozens of times a day. 
+If Docker can cache the heavy, slow steps (like OS updates or dependency installs),  pipeline finishes in seconds instead of minutes, 
+getting  code to production much faster.
+
+
+11. Why does Dockerfile instruction order matter in production?
+Because poor order equals wasted time and bandwidth. A poorly ordered Dockerfile forces  build servers to needlessly re-download gigabytes of data on every minor code tweak. 
+A well-ordered Dockerfile uses caching smartly, making production deployments blazing fast.
+
+
+12. How does this task prepare the learner for later image optimization work?
+Multi-stage, ultra-lightweight Dockerfiles, have to fundamentally grasp how the cache works and how the order of instructions directly impacts  build speed.
