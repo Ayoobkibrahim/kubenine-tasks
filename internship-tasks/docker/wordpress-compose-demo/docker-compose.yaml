@@ -1,0 +1,39 @@
+services:
+  db:
+    image: mysql:8
+    container_name: wp-db
+    environment:
+      MYSQL_DATABASE: wordpressdb
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppass123
+      MYSQL_ROOT_PASSWORD: rootpass123
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:latest
+    container_name: wp-app
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpressdb
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass123
+    ports:
+      - "8080:80"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: wp-pma
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_USER: wpuser
+      PMA_PASSWORD: wppass123
+    ports:
+      - "8081:80"
+
+volumes:
+  db_data:

@@ -1,0 +1,80 @@
+Task 1.8 — Connect, Inspect, and Verify Multiple Containers Using Docker Networking
+
+
+
+1. What is a Docker bridge network?
+It is a private, isolated virtual network created inside your host machine. Containers attached to 
+this same bridge can securely talk to each other, while keeping outside traffic completely blocked.
+
+
+
+2. Why was a custom Docker network created in this task?
+Because the default Docker network is very limited and does not support automatic name resolution. By creating a custom bridge network, 
+Docker activates a built-in DNS server, allowing containers to find each other simply by using their names.
+
+
+3. Why does localhost not work for container-to-container communication?
+Because every container is an isolated box with its own independent network. If PhpMyAdmin tries to connect to localhost,
+it is looking for a database inside its own box. It has no idea the MySQL box even exists
+
+
+4. Why does using the container name mysql-net-demo work?
+Because they are on the same custom network. You simply tell PhpMyAdmin the name of the target, 
+and Docker acts as the operator, connecting the call to the right place.
+
+
+5. How does Docker resolve one container name to another container on the same network?
+It uses an embedded DNS (Domain Name System) server. When PhpMyAdmin asks for mysql-net-demo, Docker's internal DNS intercepts the request, 
+looks up the container's private IP address, and seamlessly routes the traffic there.
+
+
+6. Why is using container names better than using hardcoded IP addresses?
+Because container IP addresses are dynamic. Every time you restart or update a container, Docker might assign it a brand-new IP address. 
+Container names remain static, ensuring your connection never breaks even if the underlying IP changes.
+
+
+7. What did docker network inspect app-net show you?
+It acts as a network map. It lists the exact configuration of the virtual network and explicitly 
+proves that both mysql-net-demo and phpmyadmin-net-demo are successfully attached to it.
+
+
+8. What did docker inspect mysql-net-demo show about networking?
+Under the "NetworkSettings" section, it shows the exact, low-level details of the container's network connection, 
+including the specific private IP address and MAC address Docker assigned to it on that custom bridge.
+
+
+
+9. Why was PhpMyAdmin exposed to the host, but MySQL was not?
+This is the Principle of Least Privilege. Users need a web browser to see the PhpMyAdmin dashboard, 
+so it must be exposed. However, the database should only be spoken to by the backend application (PhpMyAdmin). 
+Keeping MySQL strictly internal prevents hackers on the outside from even seeing that the database exists.
+
+
+10. What is the purpose of docker port in this task?
+It is a quick verification tool. It instantly shows you exactly which internal container ports are mapped to which external host ports 
+(e.g., verifying that port 80 inside PhpMyAdmin is successfully bridged to port 8081 on your machine).
+
+
+11. What is the purpose of docker stats in this task?
+To prove the containers are actively working. It provides a real-time dashboard of CPU and memory usage, 
+verifying that the networking isn't just configured, but that the services are actively communicating and processing data.
+
+
+12. What would happen if the two containers were not attached to the same network?
+They would be completely isolated. PhpMyAdmin would throw a "connection refused" or "host not found" error 
+because it would have no physical or virtual route to reach the MySQL container.
+
+
+13. Why is this task important before learning Docker Compose?
+Because Docker Compose does all of this exact networking magic—creating custom networks and linking containers by name—automatically behind the scenes. 
+You must understand the manual plumbing to understand how the automatic tool actually works.
+
+
+14. How does this task reflect real multi-service application design?
+Modern production applications are built as "microservices" (e.g., a frontend UI container, a backend API container, 
+and a database container). This task models exactly how those separate pieces are securely wired together to form a single, cohesive application.
+
+
+15. How does this task help later in debugging service connectivity problems?
+In production, when a web app crashes because "it can't reach the database," you won't blindly guess what went wrong. 
+You will instantly know to check if they are on the same network (network inspect), if the target hostname is spelled correctly, and if the ports are exposed properly.

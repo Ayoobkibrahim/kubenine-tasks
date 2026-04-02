@@ -57,3 +57,12 @@ A well-ordered Dockerfile uses caching smartly, making production deployments bl
 
 12. How does this task prepare the learner for later image optimization work?
 Multi-stage, ultra-lightweight Dockerfiles, have to fundamentally grasp how the cache works and how the order of instructions directly impacts  build speed.
+
+
+
+
+The . in a Docker command refers to the Build Context, which is simply the "source folder" allow Docker to see. 
+When i run the build, Docker takes everything in that folder code, configs, and libraries—and sends it to the Docker engine to be packaged. 
+It acts as a security boundary; Dockerfile can only COPY files from within this folder, not from other random places on computer. 
+Even if i use the -f flag to point to a Dockerfile hidden in another folder, at the end is still required to tell Docker, 
+"Use the files in this current folder as the ingredients for the build
