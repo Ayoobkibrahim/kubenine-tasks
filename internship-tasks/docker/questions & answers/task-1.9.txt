@@ -1,0 +1,78 @@
+Task 1.9 — Define, Run, Verify, and Operate a Multi-Container Application Using Docker Compose
+
+
+
+1. What is Docker Compose?
+It is a tool that allows to define and run multi-container Docker applications. Instead of running commands one by one,  write a single YAML configuration file that acts as a master blueprint for entire application stack.
+
+
+2. Why is Compose preferred over manually running multiple containers?
+It replaces dozens of long, complex, and error-prone CLI commands with a single command: docker compose up. 
+It makes deploying infrastructure automated, instantly reproducible, and easy to share with other developers.
+
+
+3. What is a service in Docker Compose?
+A service is simply one piece of overall application (like a web server, a database, or an admin UI) 
+defined as a block of configuration in YAML file. Each service tells Docker exactly how to build and run one specific container.
+
+
+
+4. How does Compose handle networking by default?
+It handles it completely automatically. The moment start a Compose stack, it silently creates a custom, 
+isolated virtual network and attaches all defined services to it so they can instantly communicate securely.
+
+
+5. Why does db work as the database host for WordPress and PhpMyAdmin?
+Because of Compose's built-in DNS resolution. Since all the containers are on the same automatic network, 
+Docker maps the service name db directly to the MySQL container's internal IP address. never have to guess or hardcode IP addresses.
+
+
+6. What is the purpose of depends_on?
+It controls the startup order. It tells Compose: "Do not start the WordPress web app or 
+PhpMyAdmin until the MySQL database container has actually been created."
+
+
+7. What is the purpose of the named volume in this task?
+To permanently protect the database state. It stores the MySQL data outside the container lifecycle, 
+ensuring that even if the database container is completely destroyed and recreated, the WordPress posts and user data survive.
+
+
+8. What did docker compose logs help you observe?
+It aggregates the terminal output from all the services in stack into one combined stream. 
+It is the fastest way to verify that the database initialized correctly and that the web app successfully connected to it.
+
+
+9. What did docker network inspect reveal?
+It proved the magic of Compose. It showed that Compose automatically built a custom bridge network 
+(usually named after folder folder, like wordpress-compose-demo_default) and securely wired all three containers into it.
+
+
+10. What did docker volume inspect reveal?
+It showed the actual physical location on host computer's hard drive 
+where Docker created the persistent volume to safely store the MySQL files.
+
+
+11. What is the difference between docker compose up -d and docker compose down?
+up -d reads the YAML blueprint, creates the network, volumes, and containers, and runs the entire stack in the background.
+down gracefully stops and destroys the containers and the network, cleaning up the environment.
+
+
+12. What remains after docker compose down, and why?
+The persistent named volume remains untouched. Docker specifically leaves data behind to protect it. 
+down is meant to refresh the compute (the containers), not destroy the state (the database).
+
+
+13. What happens if docker compose down -v is used?
+The -v flag acts as a total reset. It destroys the containers, the network, 
+and the persistent volumes, completely wiping database clean. It should be used with extreme caution.
+
+
+14. Why is this task important before learning more advanced orchestration platforms?
+Because industry-standard tools like Kubernetes use this exact same declarative methodology. 
+If can understand how to declare the desired state of 3 containers in a YAML file using Compose, 
+will easily grasp how to declare the state of 3,000 containers in Kubernetes.
+
+
+15. How does this task reflect real multi-service application management?
+In production, applications are never just a single container—they are complex ecosystems (frontend UI, backend API, database, cache). 
+This task teaches the DevOps standard of treating that entire ecosystem as a single, codified unit rather than a messy collection of manual scripts.

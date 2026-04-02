@@ -1,0 +1,74 @@
+Task 1.10 — Optimize, Compare, and Validate Docker Image Size and Build Efficiency
+
+
+1. Why is reducing Docker image size important?
+Smaller images mean faster CI/CD builds, quicker network transfers (pushing/pulling), 
+lower cloud storage costs, and a much smaller attack surface for security vulnerabilities.
+
+
+2. Why is a working image not automatically a good production image?
+A "working" image might be bloated with gigabytes of unneeded compilers, test data, and cache files. 
+A production image must be lean, secure, and heavily optimized to start up and scale instantly without dragging dead weight.
+
+
+3. What is .dockerignore, and why does it matter?
+It acts exactly like a .gitignore file, but for Docker. It is a list of files and folders 
+(like .git or local caches) that Docker should completely ignore and never send to the build engine.
+
+
+4. How does .dockerignore help build performance?
+By blocking unnecessary, heavy folders from being copied into the Docker build context,  stop Docker from wasting time and memory processing files it doesn't even need, making the start of  build drastically faster.
+
+
+5. Why does Dockerfile instruction order matter?
+Because Docker reads from top to bottom and caches every step. If put frequently changing files 
+(like  application code) at the top, break the cache for every step below it. Putting stable steps 
+(like downloading dependencies) first ensures Docker can skip the slow parts on  next build.
+
+
+6. What is a multi-stage Docker build?
+It is a technique where use multiple temporary environments within a single Dockerfile. use a heavy "builder" stage to install tools and compile  code, 
+but then only copy the final, finished application into a brand-new, tiny "runtime" stage, leaving all the build tools behind.
+
+
+7. How does a multi-stage build differ from a single-stage build?
+A single-stage build forces to ship  application along with all the heavy tools used to build it. 
+A multi-stage build allows to throw the tools in the trash and ship only the final executable.
+
+
+8. What kinds of files should not end up in a production runtime image?
+Source code (if it's a compiled language), build tools, compilers, testing frameworks, 
+.git history, and package manager cache files (like pip or npm caches).
+
+
+9. What changed between the original and optimized image?
+The optimized image is drastically smaller in megabytes, has fewer layers, builds faster (due to better caching), 
+and lacks unnecessary development tools—all while running the exact same application perfectly.
+
+
+10. What did docker history help you understand?
+It acts like an itemized receipt. It shows exactly how much disk space each individual line in 
+ Dockerfile added to the final image, making it incredibly easy to hunt down and fix bloated layers.
+
+
+11. Why should runtime behavior remain unchanged after optimization?
+Because the goal of optimization is efficiency, not refactoring. If the application crashes, 
+the fact that the image is 100MB smaller is entirely useless. Correctness must always come before speed.
+
+
+12. How do optimized images help CI/CD and deployments?
+In CI/CD, images are built and deployed dozens of times a day. Shaving two minutes off a build and 200MB 
+off a network transfer compounds into hundreds of saved hours, cheaper bandwidth, and blazing-fast production rollouts.
+
+
+13. Why does this task matter in real DevOps work?
+In the cloud, literally pay for storage, bandwidth, and compute time. Deploying bloated containers to a massive 
+Kubernetes cluster wastes thousands of dollars. Lean images are a hard financial and operational requirement.
+
+
+14. What would happen if optimized the image but forgot to verify the application? might successfully deploy a tiny, lightning-fast container that instantly crashes in production because  accidentally excluded a critical dependency or file during the multi-stage build process.
+
+
+15. How does this task prepare for real production container workflows?
+It shifts  mindset from "I got it to work on my laptop" to "I engineered this to be fast, secure, and cheap to run at scale." 
+It teaches to build artifacts the way professional platform engineering teams demand them.
