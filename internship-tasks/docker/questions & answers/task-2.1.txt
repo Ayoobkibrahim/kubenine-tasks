@@ -1,0 +1,29 @@
+1. What is Public Cloud?
+Public cloud is a model where computing resources like servers and storage are provided over the internet by providers such as Amazon Web Services.
+We don’t manage hardware; we use resources on demand and pay based on usage.
+
+
+2. What is a VPC?
+A VPC is a private virtual network in AWS where we define IP ranges, create subnets, and control how traffic flows.
+It acts like a private network inside the cloud.
+
+
+3. Why is CIDR planning important?
+CIDR planning is important because it defines the IP range of the network and helps avoid IP conflicts.
+It also allows proper subnet design and future scalability.
+
+
+4. What makes a subnet "public"?
+A subnet becomes public when its route table has a route that sends internet traffic (0.0.0.0/0) to an Internet Gateway.
+Without this route, the subnet cannot access the internet.
+
+
+5. What role does the Internet Gateway play?
+An Internet Gateway allows communication between the VPC and the internet.
+It acts as a bridge for sending and receiving traffic.
+
+
+6. Why should we avoid using the default VPC in production?
+The default VPC is pre-configured by AWS for quick setup, but it does not follow best practices for production environments.
+It gives limited control over network design, lacks proper segmentation, and is not suitable for secure and scalable architectures.
+In production, we use custom VPCs to design proper subnet structures, control traffic, and follow security standards.
