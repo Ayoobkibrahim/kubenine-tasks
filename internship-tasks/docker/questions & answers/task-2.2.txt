@@ -1,0 +1,22 @@
+1. What makes a subnet public?
+A subnet is public when its route table has a route to the Internet Gateway (0.0.0.0/0 → IGW).
+This allows resources in that subnet to access the internet directly.
+
+2. What makes a subnet private?
+A subnet is private when it does not have a direct route to the Internet Gateway.
+It uses a NAT Gateway for internet access instead.
+
+3. Why do we use a NAT Gateway?
+We use a NAT Gateway to allow private subnet resources to access the internet safely, 
+without exposing them to incoming traffic.
+
+4. Can a private subnet receive traffic directly from the internet?
+No. A private subnet cannot receive direct traffic from the internet.
+It only allows outbound traffic through the NAT Gateway.
+
+5. What happens if a private subnet is connected to an Internet Gateway?
+It becomes a public subnet and its resources will be exposed to the internet, which is not secure.
+
+6. Why is this architecture production-ready?
+Because it keeps public and private resources separate.
+Public services are exposed, but sensitive services stay protected in private subnets.
