@@ -1,0 +1,32 @@
+1. What is the main difference between Security Groups and NACLs?
+A Security Group acts as a firewall right at the instance level (like wrapping a protective layer around a specific EC2 server). 
+A NACL, on the other hand, acts as a firewall at the subnet level (acting like a bouncer at the door of the entire network segment). 
+Security Groups evaluate rules on a stateful basis, while NACLs are stateless.
+
+
+2. What does "stateful" mean in Security Groups?
+Security Groups are stateful, which means they have a memory; if an incoming request is permitted, 
+the outgoing response is automatically allowed back out.
+
+
+3. What does "stateless" mean in NACLs?
+NACLs are stateless, meaning they do not remember active connections; 
+you must explicitly create both an inbound rule for the request and a separate outbound rule for the response.
+
+
+4. Which is evaluated first — NACL or Security Group?
+The NACL is evaluated first. Because the NACL sits at the boundary of the subnet, incoming traffic has to pass through it before it can get inside. 
+Only after it passes the NACL does the traffic reach the instance, where the Security Group evaluates it." (For outgoing traffic, the order is reversed—it hits the Security Group first, then the NACL).
+
+
+5. Why are Security Groups preferred in most production setups?
+Security Groups are much easier and safer to manage because of their stateful nature. You only need to define the traffic for want to allow, 
+and the return traffic is handled automatically. With NACLs, because they are stateless, you have to carefully manage temporary 'ephemeral' ports for return traffic. 
+One small mistake there can break the whole network. Therefore, the standard best practice is to leave NACLs mostly open and use Security Groups for fine-grained, strict security.
+
+
+6. Give one example where a NACL misconfiguration could break an application.
+Definitely. Imagine you have a web application running in a subnet, and you set up a NACL to allow incoming traffic on port 443 (HTTPS) so users can browse the site. However, 
+because you forgot that NACLs are stateless, you fail to add an outbound rule allowing traffic on ephemeral ports (1024-65535).
+The result? The user's request reaches the server perfectly fine, but when the server tries to send the web page back to the user, 
+the NACL blocks it on the way out. To the user, the site simply times out and appears completely down.
