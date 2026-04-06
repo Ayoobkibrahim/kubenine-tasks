@@ -1,0 +1,48 @@
+1. What is an Availability Zone?
+An Availability Zone is an isolated physical data center within an AWS Region, designed with its own power and 
+networking so that a failure in one AZ does not bring down the others.
+
+example: 
+The Region: Think of an AWS "Region" like a major city (for example, Mumbai or London).
+The Availability Zones (AZs): Inside that city, AWS builds several massive, highly secure buildings. 
+These individual buildings are the Availability Zones.
+
+
+
+2. Why is Single-AZ architecture risky?
+Single-AZ architecture is risky because it creates a single point of failure; if that one specific data center experiences an outage, 
+your entire application goes completely offline because there is no backup infrastructure.
+
+example:
+A Single-AZ architecture means you are putting all of your web servers, databases, and network routing into one single physical data center building
+
+The Risk:
+Hardware eventually fails. Power grids go down. Internet cables get accidentally cut by construction workers. If any kind of localized disaster hits that one specific building, 
+your entire application goes 100% offline until AWS fixes the physical problem. You have no safety net.
+
+
+3. How does Multi-AZ improve availability?
+Multi-AZ improves availability by duplicating your infrastructure across isolated data centers; if one goes offline, 
+traffic is automatically routed to the healthy backup, preventing any downtime for the end user.
+
+How it works in AWS:
+putting all your web servers in one data center (Availability Zone A), you split them up. You put half in AZ-A and half in AZ-B.
+
+The Disaster: A massive storm takes out the power grid for AZ-A. Those servers go dead.
+The Recovery: AWS automatically detects the failure. The traffic director (Load Balancer) stops sending users to the dead AZ-A and instantly routes 100% of the traffic to your healthy servers in AZ-B.
+
+
+4. What would happen if one AZ goes down?
+The servers running inside AZ-A would immediately become unreachable. However, the traffic manager (like an AWS Load Balancer) will automatically detect that AZ-A is dead. 
+It will instantly stop sending users there and route 100% of the traffic to your healthy servers in AZ-B. Because of this automatic failover, the end-user likely won't even notice there was a disaster.
+
+
+
+5. Does Multi-AZ increase cost? Why?
+Yes, Multi-AZ increases costs because you are paying to duplicate infrastructure (like running extra NAT Gateways or standby databases) 
+and you incur AWS data transfer fees for traffic moving between the physical data centers.
+
+
+6. Why is high availability critical in production systems?
+High availability is critical in production because hardware failures are inevitable; High Availability ensures your application automatically survives those failures without going offline, 
+protecting the company from lost revenue and damaged customer trust.
