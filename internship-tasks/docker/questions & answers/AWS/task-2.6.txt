@@ -30,5 +30,9 @@ absolutely all incoming traffic is blocked. You would not be able to SSH into th
 
 
 7. You created a VPC, subnet, IGW, and route table just to launch one instance — why are all four needed?
-Because they work together to create a complete path to the internet. The VPC provides the isolated network, the Subnet gives the server its IP address location, the Internet Gateway acts as the physical door to the outside world, 
-and the Route Table provides the directions telling the server's traffic to go through that door. Without all four, your instance is completely cut off from the internet.
+Because they work together to create a complete path to the internet. 
+* The VPC provides the isolated network, 
+* The Subnet gives the server its IP address location, 
+* The Internet Gateway acts as the physical door to the outside world, 
+* The Route Table provides the directions telling the server's traffic to go through that door. 
+Without all four, your instance is completely cut off from the internet.
