@@ -1,0 +1,30 @@
+1. Why is CIDR planning important before creating a VPC?
+CIDR planning is critical because cannot easily change a VPC's IP range once it is created. If make it too small, will run out of IP addresses as infrastructure scales. 
+If make it too large and it overlaps with another VPC's CIDR block, will not be able to connect them later using VPC Peering or Transit Gateway. Getting it right on day one prevents massive migration headaches later.
+
+
+2. Why should production workloads live in private subnets?
+It is all about reducing the attack surface. Servers in a public subnet get a public IP address, meaning anyone on the internet can attempt to scan or attack them. By putting production workloads—like databases or application servers—in a private subnet, 
+they have no direct route from the internet. They remain completely hidden and secure, only accepting traffic from trusted internal sources like a Load Balancer or an API Gateway.
+
+3. Why must NAT Gateway exist in a public subnet?
+A NAT Gateway acts as a middleman for private servers that need to download updates from the internet. For the NAT Gateway to actually reach the internet, 
+it requires two things: a Public IP address (Elastic IP) and a direct route to the Internet Gateway (IGW). Only public subnets have that direct route to the IGW, so the NAT Gateway must live there to bridge the gap.
+
+
+4. Why are Security Groups preferred over NACL in most cases?
+Security Groups are preferred because they are stateful. This means if allow an incoming request (like HTTP on port 80), the response is automatically allowed back out, regardless of outbound rules. 
+Network Access Control Lists (NACLs) are stateless, meaning have to manually open temporary, ephemeral ports for the return traffic, which is highly complex to manage. Additionally, 
+Security Groups apply directly to the instance level, offering fine-grained control, whereas NACLs act as a blunt firewall for the entire subnet.
+
+
+5. How does Multi-AZ improve resilience?
+Availability Zones are essentially distinct, physically separate data centers with their own power, networking, and cooling. Hardware fails, and sometimes entire facilities experience outages. 
+By designing a Multi-AZ architecture, duplicate resources across these separate physical locations. If one AZ goes completely offline due to a disaster, 
+the Load Balancer will automatically route traffic to the healthy instances in the second AZ, keeping the application online without downtime.
+
+
+6. What is the biggest risk in current VPC design?
+In a standard foundational VPC, the biggest risk is usually having a single NAT Gateway. While deploying one NAT Gateway saves money, it becomes a Single Point of Failure (SPOF) for outbound traffic. 
+If the Availability Zone housing that specific NAT Gateway goes down, the servers in the other AZ will survive, but they will lose their ability to communicate with the internet to fetch updates or hit external APIs. 
+A true production environment should place a NAT Gateway in every public AZ.
