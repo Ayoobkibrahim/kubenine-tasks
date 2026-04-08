@@ -1,12 +1,12 @@
 1. What is an AMI and why does your choice of AMI matter?
-It as a blueprint or a starter template for your virtual server,An AMI  is a pre-packaged copy of the operating system and software that will be installed on your cloud server the moment it turns on.
-It dictates whether your server will run on Windows or a specific flavor of Linux (like Ubuntu, Red Hat, or Amazon Linux).
-Different AMIs use different commands. For example, if you choose an Ubuntu AMI, you will use apt to install software, but if you choose Amazon Linux, you will use yum.
+It as a blueprint or a starter template for virtual server,An AMI  is a pre-packaged copy of the operating system and software that will be installed on cloud server the moment it turns on.
+It dictates whether server will run on Windows or a specific flavor of Linux (like Ubuntu, Red Hat, or Amazon Linux).
+Different AMIs use different commands. For example, if choose an Ubuntu AMI, will use apt to install software, but if choose Amazon Linux, will use yum.
 
 
 2. What is the difference between stopping and terminating an EC2 instance?
-Stopping an instance is like shutting down your laptop. The server powers off, and you stop paying for the compute time, but its hard drive (the EBS volume) is saved so you can turn it back on later. 
-Terminating an instance  is permanently deleted, and you can never start it again. By default, the root hard drive attached to it is also destroyed.
+Stopping an instance is like shutting down laptop. The server powers off, and stop paying for the compute time, but its hard drive (the EBS volume) is saved so can turn it back on later. 
+Terminating an instance  is permanently deleted, and can never start it again. By default, the root hard drive attached to it is also destroyed.
 
 
 3. Why does the public IP change after you stop and start an instance?
@@ -15,18 +15,18 @@ its IP is immediately released back to this pool to conserve resources, and a ne
 
 
 4. What happens to the root EBS volume when you terminate an instance with "Delete on Termination" enabled?
-The root EBS volume acts as the main hard drive holding your operating system and files. When "Delete on Termination" is enabled, that hard drive 
-is permanently deleted the exact moment the EC2 instance is terminated. It is a built-in cleanup feature to ensure you don't keep getting billed for storage you are no longer using.
+The root EBS volume acts as the main hard drive holding operating system and files. When "Delete on Termination" is enabled, that hard drive 
+is permanently deleted the exact moment the EC2 instance is terminated. It is a built-in cleanup feature to ensure don't keep getting billed for storage  are no longer using.
 
 
 5. Why should SSH access never be open to 0.0.0.0/0 in production?
-Opening port 22 to 0.0.0.0/0 means anyone on the entire public internet can attempt to log into your server. This invites malicious bots and hackers to constantly run brute-force attacks, 
-trying to guess credentials or exploit vulnerabilities to gain control of your machine. You should always restrict SSH access strictly to your own IP address or a secure corporate VPN
+Opening port 22 to 0.0.0.0/0 means anyone on the entire public internet can attempt to log into server. This invites malicious bots and hackers to constantly run brute-force attacks, 
+trying to guess credentials or exploit vulnerabilities to gain control of machine. should always restrict SSH access strictly to own IP address or a secure corporate VPN
 
 
 6. What would happen if your security group had no inbound rules at all?
 Security groups act as a virtual firewall and operate on a "default deny" rule for incoming traffic. If there are zero inbound rules configured, 
-absolutely all incoming traffic is blocked. You would not be able to SSH into the instance, and no web traffic would be able to reach it.
+absolutely all incoming traffic is blocked. would not be able to SSH into the instance, and no web traffic would be able to reach it.
 
 
 7. You created a VPC, subnet, IGW, and route table just to launch one instance — why are all four needed?
@@ -35,4 +35,4 @@ Because they work together to create a complete path to the internet.
 * The Subnet gives the server its IP address location, 
 * The Internet Gateway acts as the physical door to the outside world, 
 * The Route Table provides the directions telling the server's traffic to go through that door. 
-Without all four, your instance is completely cut off from the internet.
+Without all four, instance is completely cut off from the internet.
