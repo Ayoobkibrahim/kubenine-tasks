@@ -23,8 +23,8 @@ This ensures application remains consistently reachable.
 
 
 5. How does the private instance reach the internet for software updates if it has no public IP?
-It uses a NAT (Network Address Translation) Gateway located in the public subnet. The NAT Gateway acts like a proxy or a middleman: it takes the private instance's request, 
-goes out to the internet to get the update, and hands it back to the private instance, all without exposing the private server to the outside world.
+To reach the internet without a public IP, the private instance routes its outbound traffic through a NAT Gateway located in the public subnet. 
+The NAT Gateway acts as a proxy, securely fetching the software updates from the internet and returning them to the private instance without ever exposing the server to outside connections.
 
 
 6. Why is the private security group configured to allow SSH only from the public security group, not fromr IP?
