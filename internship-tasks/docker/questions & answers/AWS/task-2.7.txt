@@ -1,0 +1,39 @@
+1. Why can the public EC2 instance be reached from the internet but the private one cannot?
+A public instance is in a subnet connected directly to an Internet Gateway (the "door" to the internet) and has a public IP address. 
+A private instance is intentionally hidden—it has no public IP address and its route table does not point to the Internet Gateway, 
+making it invisible to outside traffic.
+
+
+2. What is User Data and when exactly does it execute during the instance lifecycle?
+User Data is a script or set of commands give to AWS to automate setting up server (like installing software). It executes automatically, 
+but only once: at the very end of the very first time the instance boots up.
+
+
+3. What happens if the User Data script has a bug — does the instance still launch?
+Yes, the instance will still launch successfully and show as "Running." AWS doesn't stop the server if script fails; the instance will just boot up normally, 
+but whatever software were trying to install (like Nginx) simply won't be there.
+
+
+4. What problem does an Elastic IP solve that an auto-assigned public IP does not?
+An auto-assigned public IP changes every time stop and start server. An Elastic IP solves this by giving a permanent, 
+static IP address that stays attached to instance no matter how many times stop or reboot it.
+
+
+5. How does the private instance reach the internet for software updates if it has no public IP?
+It uses a NAT (Network Address Translation) Gateway located in the public subnet. The NAT Gateway acts like a proxy or a middleman: it takes the private instance's request, 
+goes out to the internet to get the update, and hands it back to the private instance, all without exposing the private server to the outside world.
+
+
+6. Why is the private security group configured to allow SSH only from the public security group, not fromr IP?
+Because a private instance has no public IP, computer cannot reach it directly over the internet. Configuring it to only accept SSH from the public instance creates a secure "Bastion Host" architecture, 
+forcing to securely log into the public server first before can "jump" into the hidden private server.
+
+
+7. What would happen if you accidentally deleted the NAT Gateway while the private instance was running?
+The private instance would stay running, but it would instantly lose all access to the outside internet. It would no longer be able to download updates, communicate with external APIs, 
+or ping external websites until a new NAT Gateway was created.
+
+
+8. If HTTP port 80 is not open in the security group, what happens when you try to access Nginx?
+Browser will just load forever and eventually say "Connection Timed Out." Because Security Groups act as a firewall that blocks everything by default, 
+AWS will silently drop web traffic before it ever even reaches the Nginx server.
