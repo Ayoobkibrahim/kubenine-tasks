@@ -27,7 +27,7 @@ To reach the internet without a public IP, the private instance routes its outbo
 The NAT Gateway acts as a proxy, securely fetching the software updates from the internet and returning them to the private instance without ever exposing the server to outside connections.
 
 
-6. Why is the private security group configured to allow SSH only from the public security group, not fromr IP?
+6. Why is the private security group configured to allow SSH only from the public security group, not from IP?
 Because a private instance has no public IP, computer cannot reach it directly over the internet. Configuring it to only accept SSH from the public instance creates a secure "Bastion Host" architecture, 
 forcing to securely log into the public server first before can "jump" into the hidden private server.
 
