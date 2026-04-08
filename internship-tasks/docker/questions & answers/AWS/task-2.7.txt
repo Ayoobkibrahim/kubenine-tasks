@@ -1,12 +1,14 @@
 1. Why can the public EC2 instance be reached from the internet but the private one cannot?
-A public instance is in a subnet connected directly to an Internet Gateway (the "door" to the internet) and has a public IP address. 
-A private instance is intentionally hidden—it has no public IP address and its route table does not point to the Internet Gateway, 
-making it invisible to outside traffic.
+A public instance is reachable because it has a public IP address and its subnet is wired directly to the Internet Gateway. 
+A private instance cannot be reached because it lacks a public IP address, and its subnet is intentionally disconnected from the Internet Gateway, 
+keeping it securely hidden from the outside world.
 
 
 2. What is User Data and when exactly does it execute during the instance lifecycle?
-User Data is a script or set of commands give to AWS to automate setting up server (like installing software). It executes automatically, 
-but only once: at the very end of the very first time the instance boots up.
+User Data is a feature that allows you to pass custom scripts or commands to an instance at launch to automate its initial configuration (a process known as "bootstrapping"). 
+This is typically used to automatically install software, apply updates, download files, or start services without requiring manual human intervention.
+It executes exactly once—during the final stage of the instance's initial boot process, right after the operating system has started for the very first time. 
+It does not run again if you stop, start, or reboot the instance later.
 
 
 3. What happens if the User Data script has a bug — does the instance still launch?
