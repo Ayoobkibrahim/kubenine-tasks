@@ -21,6 +21,7 @@ An auto-assigned public IP changes every time stop and start a server. An Elasti
 static IP address that stays attached to the instance no matter how many times stop or reboot it. 
 This ensures application remains consistently reachable.
 
+
 5. How does the private instance reach the internet for software updates if it has no public IP?
 It uses a NAT (Network Address Translation) Gateway located in the public subnet. The NAT Gateway acts like a proxy or a middleman: it takes the private instance's request, 
 goes out to the internet to get the update, and hands it back to the private instance, all without exposing the private server to the outside world.
