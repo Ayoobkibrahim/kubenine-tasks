@@ -5,10 +5,10 @@ keeping it securely hidden from the outside world.
 
 
 2. What is User Data and when exactly does it execute during the instance lifecycle?
-User Data is a feature that allows you to pass custom scripts or commands to an instance at launch to automate its initial configuration (a process known as "bootstrapping"). 
+User Data is a feature that allows to pass custom scripts or commands to an instance at launch to automate its initial configuration (a process known as "bootstrapping"). 
 This is typically used to automatically install software, apply updates, download files, or start services without requiring manual human intervention.
 It executes exactly once—during the final stage of the instance's initial boot process, right after the operating system has started for the very first time. 
-It does not run again if you stop, start, or reboot the instance later.
+It does not run again if stop, start, or reboot the instance later.
 
 
 3. What happens if the User Data script has a bug — does the instance still launch?
