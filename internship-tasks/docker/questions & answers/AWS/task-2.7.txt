@@ -17,9 +17,9 @@ but whatever software were trying to install (like Nginx) will simply fail or re
 
 
 4. What problem does an Elastic IP solve that an auto-assigned public IP does not?
-An auto-assigned public IP changes every time stop and start server. An Elastic IP solves this by giving a permanent, 
-static IP address that stays attached to instance no matter how many times stop or reboot it.
-
+An auto-assigned public IP changes every time stop and start a server. An Elastic IP solves this by giving a permanent, 
+static IP address that stays attached to the instance no matter how many times stop or reboot it. 
+This ensures application remains consistently reachable.
 
 5. How does the private instance reach the internet for software updates if it has no public IP?
 It uses a NAT (Network Address Translation) Gateway located in the public subnet. The NAT Gateway acts like a proxy or a middleman: it takes the private instance's request, 
