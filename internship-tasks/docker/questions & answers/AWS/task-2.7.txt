@@ -13,7 +13,7 @@ It does not run again if stop, start, or reboot the instance later.
 
 3. What happens if the User Data script has a bug — does the instance still launch?
 Yes, the instance will still launch successfully and show as "Running." AWS doesn't stop the server if script fails; the instance will just boot up normally, 
-but whatever software were trying to install (like Nginx) simply won't be there.
+but whatever software were trying to install (like Nginx) will simply fail or remain incomplete.
 
 
 4. What problem does an Elastic IP solve that an auto-assigned public IP does not?
