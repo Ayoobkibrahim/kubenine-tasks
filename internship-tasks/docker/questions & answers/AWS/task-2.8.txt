@@ -1,0 +1,72 @@
+1. Why must an instance be stopped before changing its type?
+Changing an instance type (like moving from a t2.micro to a t2.small) requires AWS to allocate different underlying physical hardware with more CPU and RAM. 
+Because cannot hot-swap a motherboard or processor while a computer is running, must stop the instance so AWS can seamlessly migrate 
+virtual machine to a new physical host server that matches the upgraded hardware requirements.
+
+
+2. What is the difference between gp2, gp3, and io1 EBS volume types? When would you use each?
+
+* gp2 (General Purpose v2): An older volume type where performance (IOPS/speed) is strictly tied to storage capacity. 
+To get a faster drive, have to buy a bigger drive. Use case: Legacy workloads.
+
+* gp3 (General Purpose v3): The modern standard. It allows to provision storage capacity and performance (IOPS/throughput) independently. 
+It is also cheaper than gp2. Use case: The default choice for almost all new workloads.
+
+* io1 / io2 (Provisioned IOPS): The highest performance, most expensive tier. Use case: Mission-critical, high-traffic databases (like massive SQL servers) 
+that require sustained, massive read/write speeds with zero latency.
+
+
+3. After expanding an EBS volume in AWS, why does the OS still show the old size?
+Expanding the EBS volume in the AWS console only increases the physical "block storage" size at the hardware level. However, the Operating System's internal filesystem 
+has not been mapped to that newly added empty space yet. must log into the server and run OS-level commands (like resize2fs or xfs_growfs) to extend the partition 
+and tell the OS to actually recognize and use the new space.
+
+
+4. What is a snapshot and how does it relate to creating a custom AMI?
+A snapshot is a point-in-time backup of an EBS volume (it saves the exact state of hard drive). An AMI (Amazon Machine Image) is a launch template used to create new servers. 
+To create a custom AMI, AWS first takes a snapshot of server's root drive, and then wraps that snapshot with configuration metadata (like the OS architecture and boot permissions) 
+so it can be used to repeatedly launch identical clones of that server.
+
+
+5. Why are custom AMIs used in production environments?
+In a production environment, cannot afford to wait 5 to 10 minutes for a startup script (User Data) to download and install software every time a new server boots up—especially because external downloads can fail or timeout.
+By using a custom AMI, all the software is already baked in. This provides two critical benefits:
+
+* Instant Boot Times: Servers boot up and are fully operational in seconds, which is absolutely mandatory for Auto Scaling to quickly handle sudden spikes in web traffic.
+* Perfect Consistency: Every single instance launched from that AMI is a 100% identical, guaranteed-to-work clone, completely eliminating human error and configuration drift.
+
+
+6. What is the instance metadata service and what endpoint does it live on?
+The Instance Metadata Service (IMDS) is an on-instance component that allows an EC2 instance to securely query information about itself. Instead of having to make authenticated calls to the public AWS API, 
+the instance can simply ask the IMDS for its own details—such as its Instance ID, public IP address, VPC subnet, or temporary IAM role credentials.
+
+What endpoint does it live on?
+It lives on a special, non-routable local IP address that can only be accessed from inside the EC2 instance itself. The exact endpoint is:
+http://169.254.169.254/latest/meta-data/
+
+
+7. What is the difference between IMDSv1 and IMDSv2, and why does it matter?
+Both provide instance metadata, but IMDSv2 is significantly more secure because it requires a session token, whereas IMDSv1 uses simple request/response. This matters because IMDSv1 is vulnerable to Server-Side Request Forgery (SSRF) attacks, 
+where a hacker exploiting a web app vulnerability could trick the server into spitting out its own IAM credentials. IMDSv2 prevents this by enforcing strict, token-based authentication.
+
+
+8. What is the difference between a system status check failure and an instance status check failure? What do you do for each?
+
+* System Status Check Failure: This means AWS is having a physical hardware, power, or network issue on the underlying host machine. 
+The Fix: Stop and Start instance. This forces AWS to move virtual machine to a brand new, healthy physical host.
+
+* Instance Status Check Failure: This means the underlying AWS hardware is fine, but virtual machine itself is failing (e.g., corrupted OS, exhausted memory, or bad network config). 
+The Fix: Reboot the instance, or SSH in to troubleshoot the application, memory usage, or OS logs.
+
+
+9. If you lose PEM file and SSM is not configured, what is the volume detach/reattach recovery method?
+
+If i lose my SSH key and SSM is not configured, are completely locked out of the server. The detach/reattach method is a reliable workaround that allows to manually inject a new key
+To recover a lost PEM file, 
+1. stop the locked instance, 
+2. detach its root volume, 
+3. and attach it to a temporary "recovery" instance. 
+4. then SSH into the recovery instance, manually inject a new public SSH key into the attached volume's authorized_keys file, 
+5. and move the volume back to the original instance.
+
+Once reattached, just start the original instance back up. now successfully bypassed the lost key and regained full SSH access to server.
