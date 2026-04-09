@@ -1,0 +1,33 @@
+1. What is the difference between object storage (S3) and block storage (EBS)?
+EBS (Elastic Block Store) is block-level storage designed to be attached to a single compute instance (EC2) for fast, low latency operations like running an operating system. 
+S3 (Simple Storage Service) is object-level storage designed to store unstructured files (objects) over the internet, accessed via APIs rather than a local file system.
+
+
+2. Why must S3 bucket names be globally unique?
+In the AWS ecosystem, S3 buckets are accessible via public web URLs (e.g : https://bucket-name.s3.amazonaws.com). Because the bucket name is literally part of the web domain, 
+it must be completely unique across all AWS accounts globally to prevent DNS routing conflicts.
+
+
+3. Why does AWS block public access by default on new buckets?
+S3 made file sharing very easy, which unfortunately led to massive, high-profile data breaches when companies accidentally left sensitive buckets open to the public. 
+AWS introduced "Block Public Access" as a strict, default security fail-safe to ensure that buckets are inherently private from the moment they are created.
+
+
+4. What makes a "folder" in S3 different from a folder on your local filesystem?
+Unlike computer's hard drive, S3 has a completely "flat" architectural structure; real nested directories do not exist. A "folder" in S3 is simply a visual illusion created by the 
+file's name (known as its "Key"). For example, a file named images/logo.png is not sitting inside a folder called images; the entire string images/logo.png is just the file's full name.
+
+
+5. What storage class would you use for data accessed once a month? What about data you need to keep for 7 years but rarely access?
+AWS offers tiered pricing based on access frequency.
+Once a month: Use S3 Standard-IA (Infrequent Access). It reduces monthly storage cost but charges a small fee every time retrieve data, making it perfect for monthly access.
+7 years, rarely accessed: Use S3 Glacier Deep Archive. It offers the absolute lowest possible storage cost, but the trade-off is that it takes hours to retrieve the data when finally need it.
+
+
+6. What is a pre-signed URL and why is it preferred over making an object public?
+A pre-signed URL is a temporary, time-limited link that grants access to a specific private file. It is the preferred method because it lets securely share a file for a short window of time without ever 
+opening bucket up to the public internet.
+
+
+7. What happens when a pre-signed URL expires?
+The exact moment the URL's time limit expires, the link becomes completely useless. Anyone trying to click or use that link will immediately receive an 'Access Denied' error, keeping private data secure
