@@ -1,0 +1,38 @@
+1. What is the difference between an IAM user and an IAM role?
+* An IAM User is a specific identity for a single person or application. It has permanent, long-term credentials (like a password to log into the console, or static access keys for code).
+* An IAM Role is an identity with temporary, short-term credentials. It is not tied to a specific person. Instead, it is "assumed" by a user, an EC2 instance, or another AWS service just for the time they need it to do a job.
+
+
+2. What is a trust policy and what does it control?
+An IAM role is actually made up of two different policies, and the Trust Policy is the first half. It strictly controls who or what is allowed to assume (use) the role. Without a trust policy, nobody is allowed to use the role. 
+For example, if want an EC2 server to access S3, the trust policy explicitly states: "The AWS EC2 service is trusted to assume this role."
+
+
+3. What is an instance profile and why is it needed?
+An instance profile is essentially a container for an IAM role. In AWS, cannot attach an IAM role directly to an EC2 instance. Instead, place the role inside an instance profile, and attach the profile to the EC2 instance. 
+It acts as the bridge that safely passes the role's temporary credentials to the virtual machine.
+
+
+4. How does an EC2 instance receive temporary credentials?
+It receives them automatically through the Instance Metadata Service (IMDS). When an instance profile is attached, AWS STS (Security Token Service) generates temporary credentials (an Access Key, Secret Key, and Session Token) 
+and securely injects them into the metadata service endpoint (http://169.254.169.254/). The AWS CLI or SDKs running on the server automatically know to look there to authenticate, requiring zero manual configuration.
+
+
+5. Why are long-lived access keys dangerous on EC2 instances?
+Long-lived access keys never expire automatically. If a hacker breaches EC2 instance and finds those keys stored in a configuration file or source code, they can copy them to their own computer. 
+From that moment on, the hacker has permanent access to AWS account to steal data or spin up expensive resources, and they will keep that access until manually realize it and delete the keys.
+
+
+6. What happens to S3 access if the IAM role is detached from the instance?
+Access is revoked immediately. The moment detach the role (or remove a policy from the role), the temporary credentials lose their authorization. 
+Any applications running on the instance that try to interact with S3 will instantly start failing with an "Access Denied" (HTTP 403) error.
+
+
+7. What is the difference between a managed policy and an inline policy? When would you use each?
+The main difference is reusability. A Managed Policy is a standalone document that lives in AWS account and can be attached to multiple users or roles. An Inline Policy is embedded directly into a single, specific user or role, creating a strict 1-to-1 relationship.
+i was used an inline policy when  a strict 1-to-1 relationship to guarantee that those exact permissions cannot be accidentally attached to any other identity in the account.
+
+
+8. Why is scoping a policy to a specific bucket ARN better than using AmazonS3ReadOnlyAccess in production?
+It strictly enforces the Principle of Least Privilege. AmazonS3ReadOnlyAccess is dangerously broad because it grants permission to read every single S3 bucket in entire AWS account. By scoping the policy down to a specific bucket ARN, guarantee the server can only see the exact files it needs to do its job. 
+This drastically reduces security risk because if the server is ever hacked, the attacker is trapped in that single bucket instead of being able to steal all of company's data.
