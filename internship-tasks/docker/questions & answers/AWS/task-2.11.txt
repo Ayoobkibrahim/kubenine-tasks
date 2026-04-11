@@ -1,0 +1,41 @@
+1. What is the difference between an IAM policy and a bucket policy?
+* IAM Policy (Identity-Based): Attached to an AWS User or Role. It defines what that specific person/identity is allowed to do across all of AWS.
+* Bucket Policy (Resource-Based): Attached directly to the S3 bucket itself. It defines who is allowed to access that specific bucket and what actions they can perform on it.
+
+
+2. If a bucket policy allows public read but the Public Access Block is enabled, what happens?
+Access will be absolutely denied. The 'Block Public Access' setting acts as a master fail-safe. Even if you write a flawless bucket policy that explicitly grants public read access, 
+the Public Access Block will step in and forcefully override it to prevent data exposure.
+
+
+3. What does "explicit deny overrides allow" mean in practice?
+In AWS permission evaluation, the system always starts with a default "Deny." If it finds an "Allow" statement, it grants access. However, if there is an explicit "Deny" written anywhere, 
+it acts as a hard stop. It does not matter how many other policies say "Allow"—a single "Deny" will always override them and block the action.
+
+
+
+4. Why must versioning be enabled on both buckets before configuring replication?
+Versioning is strictly required because S3 uses Version IDs to keep track of exactly what needs to be copied.
+If a user overwrites or deletes a file, S3 needs those unique Version IDs to track the changes and push the correct updates across regions. 
+Without versioning enabled on both sides, S3 would not be able to safely handle file overwrites or guarantee that the two buckets are perfectly synchronized.
+
+
+
+5. What IAM component is required for S3 replication to work?
+S3 Cross-Region Replication requires an IAM Role. By default, AWS services do not have permission to access or move data. To make replication work, 
+must create a specific IAM service role that "trusts" S3, granting it the explicit permissions to read objects from source bucket and write them into destination bucket.
+
+
+
+6. Are existing objects replicated when you enable CRR? Why or why not?
+No, existing objects are not replicated. S3 Cross-Region Replication is strictly an event-driven process. 
+This means the replication engine only wakes up and triggers when it sees a specific new action happen—like a user making a PutObject (upload) API call. 
+Because it only watches for new actions, it does not do a retroactive scan of the bucket to copy older inventory
+
+
+
+7. What is the biggest security risk with S3 buckets in production, and how do the permission layers protect against it?
+The biggest security risk in production S3 environments is an accidental public data leak caused by human error, like misconfiguring a bucket policy.
+AWS protects against this by using overlapping permission layers. The most critical protection layer is the 'Block Public Access' setting. It acts as a mandatory fail-safe. 
+It ensures that even if an engineer accidentally writes a policy that tries to make a bucket completely public, the Public Access Block acts as a hard wall, 
+overriding the bad policy and keeping your sensitive data securely hidden.
