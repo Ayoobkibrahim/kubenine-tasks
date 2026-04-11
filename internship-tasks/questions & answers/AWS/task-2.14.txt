@@ -1,6 +1,6 @@
 1. What is the purpose of IAM groups?
 An IAM group is simply a collection of IAM users. Its primary purpose is to make permission management efficient and scalable. Instead of attaching 
-policies to people one by one, you attach permissions to the group. Any user placed into that group automatically inherits all of its permissions.
+policies to people one by one, attach permissions to the group. Any user placed into that group automatically inherits all of its permissions.
 
 
 2. Why should policies not be attached directly to users in production?
