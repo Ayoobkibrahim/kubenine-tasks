@@ -1,0 +1,27 @@
+1. What is the purpose of IAM groups?
+An IAM group is simply a collection of IAM users. Its primary purpose is to make permission management efficient and scalable. Instead of attaching 
+policies to people one by one, you attach permissions to the group. Any user placed into that group automatically inherits all of its permissions.
+
+
+2. Why should policies not be attached directly to users in production?
+Attaching policies directly to individual users does not scale and introduces massive operational risk. In an organization with dozens or hundreds of employees, 
+manually managing per-user policies leads to "permission creep"—where people change roles but keep old access—and makes security audits nearly impossible. Groups enforce standardized, predictable access.
+
+
+3. What happens when a user is removed from a group?
+The user immediately loses all permissions that were granted by that group's policies. Access is revoked instantly, with zero need to manually track down and detach individual policies from the user's profile.
+
+
+4. Can a user belong to multiple groups? How are permissions evaluated in that case?
+Yes, a user can belong to multiple groups simultaneously (for example, being in both the "Developers" group and the "BillingAccess" group). AWS evaluates this by combining the permissions. 
+The user's total access is the union (the sum total) of all the "Allows" granted across every group they belong to.
+
+
+5. If one group allows s3:PutObject and another group explicitly denies it, what happens?
+The explicit deny always takes precedence. Even if the user inherits a direct "Allow" from their first group, the "Explicit Deny" from their second group will instantly override it and block the action. 
+In AWS IAM, one deny trumps a hundred allows.
+
+
+6. How does group-based IAM reduce mistakes during employee onboarding and offboarding?
+Group-based IAM ensures new employees automatically receive the exact, standardized permissions they need simply by being added to a pre-configured group, eliminating the risk of manual assignment errors. 
+When an employee leaves, removing them from that single group instantly and cleanly revokes all their access at once, guaranteeing no security gaps or lingering permissions are left behind.
