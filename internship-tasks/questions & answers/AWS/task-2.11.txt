@@ -4,7 +4,7 @@
 
 
 2. If a bucket policy allows public read but the Public Access Block is enabled, what happens?
-Access will be absolutely denied. The 'Block Public Access' setting acts as a master fail-safe. Even if you write a flawless bucket policy that explicitly grants public read access, 
+Access will be absolutely denied. The 'Block Public Access' setting acts as a master fail-safe. Even if write a flawless bucket policy that explicitly grants public read access, 
 the Public Access Block will step in and forcefully override it to prevent data exposure.
 
 
