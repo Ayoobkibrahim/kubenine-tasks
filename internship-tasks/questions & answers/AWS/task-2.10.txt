@@ -1,3 +1,7 @@
+what is Versioning
+S3 Bucket Versioning is a data protection feature in Amazon S3 that allows you to keep multiple variants of an object in the same bucket. 
+When enabled, it preserves, retrieves, and restores every version of every object stored in your bucket.
+
 1. What does versioning protect against that "Block Public Access" does not?
 "Block Public Access" is a security perimeter that protects against external threats (preventing the outside internet from seeing my data). 
 Versioning is an operational safeguard that protects against internal human error or application bugs (like accidentally deleting a database backup or overwriting a file with bad code).
