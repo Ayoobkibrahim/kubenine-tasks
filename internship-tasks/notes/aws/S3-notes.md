@@ -207,3 +207,133 @@ By default, when you turn on CRR, only new objects uploaded after the rule is cr
 
 5. Cost implications of replication
 CRR effectively doubles your costs. You pay for the storage capacity in the source bucket, the storage capacity in the destination bucket, and the inter-region network data transfer fees to move the data between the two locations.
+
+
+
+* IAM Roles vs IAM Users
+
+1. Why roles exist and how they differ from users
+IAM Users are permanent identities tied to specific people or applications, using long-term credentials (like passwords). IAM Roles exist to provide temporary, short-term access. A role is not tied to a specific person; instead, it is a set of permissions that any trusted entity can temporarily "wear" to complete a task.
+
+
+2. Roles are assumed, not logged into
+You cannot log into an IAM role using a username and password. Instead, you "assume" a role. When a service or user assumes a role, AWS dynamically generates temporary credentials that allow them to act as that role for a limited time.
+
+
+3. Why services like EC2, Lambda, and ECS use roles
+AWS services need to talk to each other (e.g., an EC2 server needing to read a file from S3). Instead of manually giving the server a permanent password, we attach an IAM Role. The service assumes the role, securely gets what it needs, and we never have to manage or rotate passwords.
+
+
+4. Why storing access keys on a server is a critical security anti-pattern
+Hardcoding long-lived access keys onto an EC2 hard drive or inside application code is incredibly dangerous. If a hacker breaches the server or finds the code on GitHub, they instantly have permanent access to your AWS account. IAM roles prevent this entirely because no permanent keys ever touch the server.
+
+
+
+* Trust Policies & Permission Policies
+
+1. The two policy types that make up a role
+An IAM Role is fundamentally made of two halves: the Trust Policy and the Permission Policy. Both must be perfectly aligned for access to work.
+
+
+2. Trust policy defines who can assume the role
+The Trust Policy is the gateway. It strictly defines who or what (the Principal) is legally allowed to assume the role. For example, it might say: "Only the AWS EC2 service is trusted to use this role."
+
+
+3. Permission policy defines what the role can do
+The Permission Policy dictates the actual actions the role is authorized to perform once it has been assumed. For example: "You are allowed to GetObject from this specific S3 bucket."
+
+
+4. Why both must be correct for access to work
+If the Trust Policy is wrong, the server is denied permission to assume the role in the first place. If the Permission Policy is wrong, the server can assume the role, but will get an "Access Denied" error the moment it tries to actually touch an AWS resource.
+
+
+* Instance Profiles
+
+1. What an instance profile is and how it connects to EC2
+In AWS, you cannot physically attach an IAM Role directly to an EC2 instance. An Instance Profile is a logical container that wraps around the IAM Role. You attach the Instance Profile to the EC2 server, which acts as the bridge delivering the role's permissions to the virtual machine.
+
+
+2. How EC2 receives temporary credentials through the metadata service
+Once an instance profile is attached, the server automatically queries the Instance Metadata Service (IMDS) at a special local IP address (169.254.169.254). AWS automatically securely injects the temporary credentials into this metadata endpoint so applications running on the server can use them seamlessly.
+
+
+3. Why credentials are rotated automatically and never stored on disk
+Because the metadata service handles the credentials entirely in memory, they are never written to the physical hard drive or configuration files. AWS STS (Security Token Service) automatically rotates these credentials in the background before they expire, ensuring zero downtime and maximum security.
+
+
+
+* Temporary Credentials
+
+1. How STS generates short-lived credentials behind the scenes
+When a role is assumed, the AWS Security Token Service (STS) acts as a secure ticket booth. It dynamically generates a brand-new set of credentials on the fly, hands them to the requester, and sets a strict expiration timer on them.
+
+
+2. The three parts of temporary credentials
+When STS issues temporary credentials, it always delivers three specific components:
+An Access Key ID
+A Secret Access Key
+A Session Token (the cryptographic proof that these keys are temporary and valid)
+
+
+3. Why temporary credentials are safer than long-lived access keys
+Temporary credentials are self-destructing. Even if an attacker perfectly steals the Access Key, Secret Key, and Session Token from an EC2 instance, the keys will automatically expire and become utterly useless within a short window (typically 15 minutes to an hour). This drastically reduces the window of opportunity for an attack.
+
+
+
+* IAM Groups
+
+1. What an IAM group is and how it simplifies permission management
+An IAM group is a collection of IAM users. It simplifies permission management by allowing administrators to attach IAM policies to the group as a whole, rather than having to manually attach and track policies for dozens or hundreds of individual users.
+
+
+2. How users inherit permissions from groups they belong to
+When an IAM user is added to a group, they automatically and instantly "inherit" all the permissions defined by the policies attached to that group.
+
+
+3. Why a user can belong to multiple groups and how permissions combine
+In the real world, employees often wear multiple hats. A user can be placed in multiple groups (e.g., the "Developers" group and the "Database-Admins" group). AWS simply combines the permissions; the user's total access is the sum (the union) of all the "Allows" granted across every group they belong to.
+
+
+4. Why policies should be attached to groups, not directly to users (AWS best practice)
+Attaching policies directly to users does not scale. It creates massive overhead and makes security audits nearly impossible. By attaching policies only to groups, you enforce Role-Based Access Control (RBAC), ensuring that access is standardized, easily auditable, and tied to a job function rather than an individual person.
+
+
+
+*  Permission Inheritance & Evaluation
+
+1. How permissions from multiple groups are merged for a single user
+AWS evaluates permissions globally for the user. If Group A allows reading from S3, and Group B allows writing to DynamoDB, the user simply gets both abilities. The permissions are merged together into one comprehensive list of "Allows."
+
+
+2. What happens when a user is removed from a group
+The permissions are revoked immediately. The instant you remove a user from a group, they lose all access that was granted specifically by that group's policies.
+
+
+3. How group-based permissions interact with directly attached user policies
+AWS treats them equally during evaluation. If a user has a directly attached policy allowing an action, and a group policy allowing a different action, the user gets both. However, mixing the two is considered an anti-pattern in production because it makes troubleshooting access issues much harder.
+
+
+4. Why explicit deny in any policy still overrides allow from any group
+The most sacred rule of AWS IAM evaluation is that an "Explicit Deny" always takes precedence. If a user belongs to a group that explicitly denies deleting S3 buckets, it doesn't matter if they belong to five other groups that allow it—the deny will instantly override all allows and block the action.
+
+
+
+* Scalable Permission Design
+
+1. Why direct user policies create operational risk at scale
+Direct user policies inevitably lead to "permission creep." When a developer transfers from the backend team to the frontend team, administrators often forget to remove their old backend policies. Over time, that user accumulates dangerous levels of access they no longer need, expanding the blast radius if their account is compromised.
+
+
+2. How group-based design reduces mistakes during onboarding and offboarding
+It centralizes access control. When a new engineer joins, you don't guess which 10 policies they need; you just add them to the "Engineering" group and they are perfectly set up. When they leave the company, removing them from that single group cleanly and completely revokes all their access in one click, leaving no security gaps.
+
+3. Common group patterns
+Production environments typically use standardized functional groups:
+* Admins: Full AdministratorAccess (tightly restricted, heavily monitored).
+* Developers: Read/Write access to dev/test resources, but restricted from production.
+* ReadOnly: Ability to view configurations and logs (often for auditors or junior staff).
+* BillingAccess: Access to the billing dashboard and cost explorer only (for finance teams).
+
+
+4. Why this maps directly to how organizations manage access in production
+Group-based design perfectly mirrors real-world corporate structure. Organizations don't invent bespoke job descriptions for every single employee; they have defined roles (e.g., "Senior QA Engineer"). IAM groups allow your cloud security architecture to exactly match your HR and operational org chart.
