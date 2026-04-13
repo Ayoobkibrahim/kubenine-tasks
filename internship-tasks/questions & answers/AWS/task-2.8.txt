@@ -5,7 +5,6 @@ virtual machine to a new physical host server that matches the upgraded hardware
 
 
 2. What is the difference between gp2, gp3, and io1 EBS volume types? When would you use each?
-
 * gp2 (General Purpose v2): An older volume type where performance (IOPS/speed) is strictly tied to storage capacity. 
 To get a faster drive, have to buy a bigger drive. Use case: Legacy workloads.
 
@@ -51,7 +50,6 @@ where a hacker exploiting a web app vulnerability could trick the server into sp
 
 
 8. What is the difference between a system status check failure and an instance status check failure? What do you do for each?
-
 * System Status Check Failure: This means AWS is having a physical hardware, power, or network issue on the underlying host machine. 
 The Fix: Stop and Start instance. This forces AWS to move virtual machine to a brand new, healthy physical host.
 
