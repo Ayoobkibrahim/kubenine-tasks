@@ -1,0 +1,42 @@
+1. What is a Load Balancer and why do we need one?
+Load balancer is a automatically distributes incoming network traffic across multiple servers (like EC2 instances). 
+We need it for two main reasons: 
+Availability (if one server goes down, the load balancer reroutes traffic to healthy ones so the application stays online) 
+Scalability (it allows us to handle more user traffic by spreading the workload evenly rather than overwhelming a single server).
+
+
+2. What is a Target Group? How does it relate to the ALB?
+A Target Group is a logical collection of servers, such as EC2 instances, that are ready to process incoming traffic. 
+It acts as the final destination for the Application Load Balancer, which evaluates incoming user requests and routes them to the healthy servers within that specific group.
+
+
+3. What is a Listener and what does it do?
+A Listener is a process configured on the load balancer that "listens" for incoming connection requests from clients. Define the protocol and the port (for example, HTTP on port 80). 
+When a request matches the listener's criteria, it evaluates the routing rules set up and directs the traffic to the correct Target Group.
+
+
+4. Why should EC2 instances not be publicly accessible in production?
+Exposing EC2 instances directly to the internet gives them a public IP, which significantly increases attack surface. It makes the servers vulnerable to direct internet attacks, 
+such as DDoS or brute-force SSH attempts. In a standard production pattern, instances are placed in private subnets so they remain isolated. They can only be accessed through a controlled, 
+secure entry point—like an internet-facing Load Balancer.
+
+
+5. What happens if one of the two EC2 instances fails the health check?
+If an EC2 instance fails its health check, the Application Load Balancer immediately marks it as 'unhealthy' and stops sending user traffic to it. Instead, 
+it automatically reroutes all incoming requests to the remaining healthy instance to ensure application stays online without interruption.
+
+
+6. Why must the ALB be in public subnets?
+For an "internet-facing" ALB to do its job, it needs to receive traffic from external users on the internet. Placing the ALB in public subnets ensures it 
+has a direct route to the VPC's Internet Gateway (IGW) and is assigned public IP addresses. This allows it to act as the public "front door" for application, 
+bridging the internet and private subnets.
+
+
+7. What layer does ALB operate on? What does that mean?
+The Application Load Balancer operates at Layer 7 of the OSI model, which is the Application Layer. This means it actually understands HTTP and HTTPS traffic. 
+Because it operates at this layer, it can inspect the contents of the requests—such as the URL path, HTTP headers, or cookies—and make intelligent routing decisions based on that data.
+
+
+8. The EC2 security group allows HTTP only from the ALB security group. Why is this more secure than allowing from 0.0.0.0/0?
+By referencing the ALB's specific Security Group ID instead, are enforcing a strict "chain of trust." It guarantees that EC2 instances will only accept traffic that has successfully passed through the load balancer. 
+Even if the EC2 instance accidentally got assigned a public IP, nobody from the outside internet could access it directly.
