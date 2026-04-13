@@ -1,6 +1,6 @@
 what is Versioning
-S3 Bucket Versioning is a data protection feature in Amazon S3 that allows you to keep multiple variants of an object in the same bucket. 
-When enabled, it preserves, retrieves, and restores every version of every object stored in your bucket.
+S3 Bucket Versioning is a data protection feature in Amazon S3 that allows to keep multiple variants of an object in the same bucket. 
+When enabled, it preserves, retrieves, and restores every version of every object stored in bucket.
 
 1. What does versioning protect against that "Block Public Access" does not?
 "Block Public Access" is a security perimeter that protects against external threats (preventing the outside internet from seeing my data). 
@@ -31,7 +31,7 @@ it adds that crucial final layer of protection, ensuring sensitive data remains 
 
 6. What is the difference between SSE-S3 and SSE-KMS? When would you choose KMS?
 SSE-S3 (S3-Managed Keys): This is the simple, default, and free option. AWS handles everything invisibly in the background. They generate, securely store, and rotate the encryption keys.
-SSE-KMS (Key Management Service): This is the customer-controlled option. manage the encryption keys myself through AWS KMS. It costs a small fee, but it allows you to set specific access policies on the key itself and creates an audit log every single time the key is used.
+SSE-KMS (Key Management Service): This is the customer-controlled option. manage the encryption keys myself through AWS KMS. It costs a small fee, but it allows to set specific access policies on the key itself and creates an audit log every single time the key is used.
 I would choose KMS for highly sensitive production data because it provides a complete audit log of decryption activity and enforces strict separation of duties.
 
 
