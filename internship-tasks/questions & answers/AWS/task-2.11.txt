@@ -38,4 +38,4 @@ Because it only watches for new actions, it does not do a retroactive scan of th
 The biggest security risk in production S3 environments is an accidental public data leak caused by human error, like misconfiguring a bucket policy.
 AWS protects against this by using overlapping permission layers. The most critical protection layer is the 'Block Public Access' setting. It acts as a mandatory fail-safe. 
 It ensures that even if an engineer accidentally writes a policy that tries to make a bucket completely public, the Public Access Block acts as a hard wall, 
-overriding the bad policy and keeping your sensitive data securely hidden.
+overriding the bad policy and keeping sensitive data securely hidden.
