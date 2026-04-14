@@ -12,7 +12,7 @@ in the URL which happens up at Layer 7. Because an NLB doesn't open the packets 
 3. When would you use NLB instead of ALB? Give a specific example.
 I would choose an NLB when dealing with extreme performance requirements, non-HTTP traffic, or when we absolutely need a static IP address for firewall whitelisting.
 For example, if I'm setting up a backend for thousands of IoT smart devices that stream raw TCP telemetry data continuously, an ALB wouldn't work because it expects standard HTTP web traffic. 
-I would use an NLB to efficiently process those raw network connections at scale without adding any application-level delay.
+an NLB to efficiently process those raw network connections at scale without adding any application-level delay.
 
 
 4. Why is NLB considered higher performance than ALB?
