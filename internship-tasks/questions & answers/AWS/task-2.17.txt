@@ -1,0 +1,34 @@
+1. What is the difference between an internet-facing ALB and an internal ALB?
+An internet-facing ALB is placed in public subnets, is assigned public IP addresses, and acts as the front door to route external traffic from the internet into the network. 
+An internal ALB is placed in private subnets, only has private IP addresses, and is entirely invisible to the outside world. It is used strictly to route traffic internally between resources that already live inside VPC.
+
+
+2. Why would you use an internal ALB in production? Give a real example.
+Internal ALB to keep sensitive backend services secure and isolated from the internet, while still providing high availability and load balancing for them. For example, if i have a public web application, the frontend would sit behind an internet-facing ALB. 
+But when that frontend needs to talk to a backend payment processing microservice, it routes that request through an internal ALB. This ensures the payment servers are load-balanced but impossible for external attackers to reach directly.
+
+
+3. What is path-based routing? How does the ALB decide which target group to use?
+Path-based routing allows a single load balancer to serve multiple different applications by looking at the URL path of the incoming request. The ALB inspects the HTTP request layer; if it sees the user requested domain.com/app1, 
+it matches that path to a specific rule and forwards the traffic to Target Group 1. If it sees /app2, it routes the traffic to Target Group 2.
+
+
+4. What is a listener rule? How is it different from the default rule?
+A listener rule acts like a specific traffic filter. It looks at an incoming request—such as checking if the URL path says /app1 or /app2—and routes that traffic directly to the correct Target Group.
+The default rule, on the other hand, is catch-all backup. If a request comes in that doesn't match any of specific listener rules, the load balancer falls back to the default rule. In a production environment, 
+typically configure this default rule to safely return a '404 Not Found' error or route to a generic landing page.
+
+
+5. Why do we need separate target groups for each application?
+Each application is a distinct service running on its own set of servers with its own specific health criteria. By using separate target groups, the ALB knows exactly which servers belong to App 1 and which belong to App 2. 
+Crucially, it allows the ALB to perform independent health checks—so if App 1 crashes, the ALB knows not to send traffic there, but App 2 remains entirely unaffected.
+
+
+6. How do you test an internal ALB if it has no public DNS?
+Because an internal ALB doesn't exist on the public internet, test it from inside the same network. The standard method is to log into a "jump host" or a bastion EC2 instance that lives in a public subnet within the same VPC. 
+From that machine's command line, run a simple curl command against the internal ALB's private DNS name to verify it routes the traffic correctly.
+
+
+7. What happens if a target in one target group becomes unhealthy — does the entire ALB go down?
+No, the ALB itself remains highly available. If a specific EC2 instance inside the App 1 Target Group fails its health check, the ALB simply stops sending /app1 traffic to that one broken instance. The rest of the target group handles the load, 
+and all traffic going to the App 2 Target Group continues completely uninterrupted. The failure is completely isolated.
