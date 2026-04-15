@@ -1,0 +1,36 @@
+1. What is the difference between fixed capacity and dynamic scaling?
+Fixed capacity means Auto Scaling Group maintains a constant, unchanging number of instances regardless of how much traffic is hitting application. 
+Dynamic scaling automatically adjusts the number of instances in real-time based on actual user demand, ensuring have enough power during spikes and aren't overpaying during quiet periods.
+
+
+2. What is target tracking scaling and how does it decide when to scale?
+Target tracking works like a thermostat for infrastructure. set a specific goal—for example, "keep average CPU utilization at 50%." The ASG constantly monitors this. If the CPU load rises above 50%, 
+it automatically adds instances to bring the average back down. If the load drops below 50%, it removes instances to maintain that exact target.
+
+
+3. What is a cooldown period and why does it exist?
+A cooldown period is a mandatory stabilization pause after a scaling action occurs. When a new instance is launched, it takes time to boot up, register with the load balancer, and start taking traffic. 
+Without a cooldown period, the ASG might see that the CPU metric is still high and mistakenly launch even more instances. The cooldown forces the system to wait and let the new instance take effect before making another scaling decision.
+
+
+4. What happens if the scaling threshold is set too low?
+If threshold is set too low such as triggering a scale-out at just 20% CPU, ASG becomes overly sensitive. It will launch new instances at the slightest, normal fluctuation in traffic. 
+This results in heavily over-provisioned infrastructure and massively inflates AWS bill without actually improving the user experience.
+
+5. What is the difference between scale-out and scale-in?
+Scale-out is the process of adding more EC2 instances to pool to handle a surge in traffic or workload. Scale-in is the reverse process of terminating those extra instances when the traffic drops back to normal baseline levels, 
+ensuring stop paying for idle resources.
+
+6. How does CloudWatch trigger Auto Scaling actions?
+It operates as a chain reaction. CloudWatch continuously monitors EC2 metrics like CPU utilization. When a metric crosses the threshold defined, CloudWatch triggers an Alarm. That alarm sends a direct signal to the ASG's scaling policy, 
+instructing it to execute the necessary scale-out or scale-in action.
+
+7. How does dynamic scaling directly affect AWS cost?
+Because AWS operates on a "pay-as-go" model, dynamic scaling directly optimizes costs. Instead of provisioning enough servers to handle peak traffic 24/7, dynamic scaling automatically removes extra instances during off-peak hours like the middle of the night.  
+only pay for heavy computing power when actual user demand requires it.
+
+
+8. What is scaling flapping and how do prevent it?
+Scaling flapping is a dangerous loop where Auto Scaling Group continuously launches and terminates instances, over and over again, without ever stabilizing. This usually happens when scale-in and scale-out thresholds are set too close together.
+To prevent it in production, we do two things: First, we configure a cooldown period, which forces the system to pause and wait for metrics to stabilize before making another scaling decision. Second, we ensure there is a wide enough gap between the thresholds for example, 
+scaling out at 70% CPU but not scaling in until 30% CPU giving the system a safe 'buffer zone' where no scaling actions are triggered.
