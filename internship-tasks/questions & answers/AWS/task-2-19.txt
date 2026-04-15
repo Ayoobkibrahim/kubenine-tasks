@@ -1,0 +1,38 @@
+1. What is a Launch Template and why is it required for an ASG?
+A Launch Template is a saved blueprint for EC2 instances. It contains all the configuration details like the AMI, instance type, security groups, and user data . 
+It is required for an Auto Scaling Group because when the ASG needs to automatically create a new instance—whether for scaling up or replacing a failed server—it needs 
+exact instructions on how to build it without any human intervention.
+
+
+2. What do minimum, desired, and maximum capacity mean? What happens if desired is set below minimum?
+* Minimum: The absolute lowest number of instances the ASG is allowed to run, ensuring application never goes completely offline.
+* Desired: The exact number of instances want running right now under normal conditions.
+* Maximum: The absolute highest number of instances the ASG can scale up to, which protects from massive cloud bills during unexpected traffic spikes.
+If desired is set below minimum: AWS will not allow it. It will throw an error, and the ASG will enforce the minimum capacity as the baseline.
+
+
+3. Why should health check type be set to ELB instead of EC2 when an ASG is behind a load balancer?
+An EC2 health check only verifies if the underlying hardware and operating system are running. It doesn't know if actual web application has crashed. 
+An ELB (Load Balancer) health check actually tests the application layer by sending an HTTP request to web server. If Nginx service crashes but the server is still powered on, 
+only the ELB health check will catch the failure and tell the ASG to replace the broken instance.
+
+
+4. What happens when ASG detects an unhealthy instance? Walk through the full replacement cycle.
+When the ELB health check fails, the Load Balancer stops sending traffic to that specific instance. The ASG then marks the instance as "unhealthy" and terminates it. To maintain the desired capacity, 
+the ASG immediately uses the Launch Template to spin up a brand-new instance. Once the new instance boots up and passes its health checks, the ASG automatically registers it with the Target Group, 
+and the load balancer begins sending user traffic to it.
+
+
+5. Why is Multi-AZ deployment important for an Auto Scaling Group?
+Multi-AZ deployment ensures high availability and disaster recovery. Even AWS can experience hardware failures or power outages in a specific data center (Availability Zone). If ASG spans multiple AZs and one zone goes down, 
+the ASG will automatically launch replacement instances in the remaining healthy zones, keeping application online with zero manual effort.
+
+
+6. What is the relationship between a Target Group and an ASG?
+The Target Group acts as the bridge between Application Load Balancer and Auto Scaling Group. attach the ASG to the Target Group so that whenever the ASG automatically creates a new instance, 
+it dynamically registers that new server's IP address with the Target Group. This ensures the Load Balancer instantly knows about the new server and can start routing traffic to it.
+
+
+7. If you manually terminate an ASG-managed instance, what does the ASG do and why?
+If manually terminate an instance, the total number of running instances drops below configured "desired capacity." The ASG constantly monitors this state. The moment it notices a missing instance, 
+it will automatically launch a new one to replace it. Its primary job is to ensure the actual capacity always matches desired capacity, making the architecture highly self-healing against accidental deletions or crashes.
