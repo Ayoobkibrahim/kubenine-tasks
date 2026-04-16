@@ -1,0 +1,39 @@
+1. Why does AWS provide CPU metrics by default but not memory or disk?
+It happens because of the Virtualization Boundary. The hypervisor allocates raw CPU cycles and network packets, so AWS can easily measure CPU and Network metrics by default. 
+However, memory allocation and disk file system usage are managed entirely by the Operating System inside the instance. For security and privacy, 
+AWS does not cross this boundary to peek inside OS to see how much RAM or disk space is actually free.
+
+
+Question 2: What is the difference between hypervisor-level and OS-level metrics?
+* Hypervisor-level metrics are collected from the underlying physical hardware hosting the virtual machine, tracking raw resource allocation like CPU and Network. 
+* OS-level metrics are collected from inside the virtual machine's operating system, tracking internal resource management like RAM and available disk space.
+
+
+3. What is the CloudWatch Agent and why is it needed for memory and disk monitoring?
+The CloudWatch Agent is a lightweight software program that install inside EC2 instance. It acts as a bridge. Because AWS cannot see OS-level metrics by default, 
+the agent runs inside the OS, gathers data like memory consumption and free disk space, and securely pushes that data to AWS CloudWatch as "custom metrics."
+
+
+4. What is the difference between CloudWatch metrics and logs?
+* Metrics are numerical data points recorded over time-series data.They are primarily used for graphing, monitoring performance, and triggering alarms.
+* Logs are text-based records of specific events that happened in system or application.They are used for troubleshooting and auditing.
+
+
+5. What is a CloudWatch namespace and how are metrics organized?
+A namespace is essentially a container or a folder that groups related metrics together in CloudWatch. It prevents metrics from different services or applications from clashing. 
+For example, all default EC2 metrics are grouped in the AWS/EC2 namespace, while the custom metrics pushed by installed agent typically go into a custom namespace like CWAgent.
+
+
+6. How can CloudWatch alarms trigger automated actions beyond email?
+CloudWatch alarms can act as event-driven triggers. Beyond simply sending an SNS email notification, an alarm entering the ALARM state can directly invoke other AWS services to execute predefined, 
+automated actions to resolve the underlying issue
+
+
+7. Why is monitoring critical for production systems?
+In production, monitoring data is the foundation for everything else. Metrics feed into Auto Scaling policies to dynamically handle traffic spikes, trigger CloudWatch Alarms for incident response, 
+and provide historical data to help engineers optimize costs and performance over time. Monitoring gives early detection, faster debugging, and prevents downtime
+
+
+8. What happens if you run a memory-intensive application on an instance without memory monitoring?
+Running a memory-intensive application without monitoring leads to a "silent failure" where the Operating System abruptly kills the app due to an Out of Memory (OOM) error. 
+To prevent this, Install the CloudWatch Agent to track OS-level RAM usage and set an alarm that automatically scales infrastructure or alerts an engineer before the crash occurs.
