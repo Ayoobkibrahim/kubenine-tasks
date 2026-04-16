@@ -1,0 +1,34 @@
+1. What is the difference between Secrets Manager and Parameter Store? When would you use each?
+While both store configuration data, Secrets Manager is purpose-built for sensitive credentials and features built-in, automatic secret rotation like changing a database password. 
+SSM Parameter Store is primarily for plain-text configuration (like endpoint URLs), and while it can store secure strings, it lacks native, automatic rotation capabilities.
+
+
+2. What is a SecureString parameter and when should it be used?
+A SecureString is a specific data type within SSM Parameter Store where the stored value is securely encrypted using an AWS KMS (Key Management Service) key. 
+use it to store sensitive data without paying the higher costs of Secrets Manager, specifically when that data does not require AWS's automatic rotation feature.
+
+
+3. Why is hierarchical parameter naming useful for multi-environment deployments?
+Hierarchical naming acts like a folder structure  /dev/ vs /prod/, keeping configurations perfectly organized across different environments. 
+This is critical for security because it allows to write strict IAM policies that ensure a development server can only access development parameters, completely preventing production data leaks.
+
+
+4. What IAM permissions are needed to retrieve and decrypt parameters?
+To retrieve standard configuration values, IAM role simply needs the ssm:GetParameter or ssm:GetParametersByPath permission. However, if are fetching an encrypted SecureString like a password, 
+must also explicitly grant the kms:Decrypt permission, otherwise AWS will block application from seeing the plaintext value.
+
+
+5. Why should application configuration not be hardcoded?
+Hardcoding configuration values like database URLs or API endpoints directly into source code makes application incredibly rigid and difficult to manage. If a single IP address changes, are forced to rewrite the code, 
+rebuild the entire application, and trigger a full production deployment, whereas externalizing these values allows to update configurations instantly without ever touching the codebase.
+
+
+6. What is the difference between String, StringList, and SecureString parameter types?
+* String: A simple, plain-text value. eg: Storing a database endpoint URL or an application environment name
+* StringList: A list of values separated by commas. eg: Storing a list of allowed IP addresses or list of supported regions
+* SecureString: A sensitive value encrypted via KMS. eg: Storing a production database password or a third-party API token
+
+
+7. How does Parameter Store use AWS KMS for SecureString encryption?
+When i create a SecureString, Parameter Store automatically integrates with AWS KMS to encrypt data before saving it to the physical storage. 
+This ensures that even if someone gains access to the Parameter Store, they cannot read sensitive values without having explicit kms:Decrypt permissions for that specific key.

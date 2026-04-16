@@ -20,7 +20,7 @@ policy to the exact ARN of the required secret, ensuring a compromised applicati
 
 
 5. What is the difference between Secrets Manager and SSM Parameter Store?
-While both store configuration data, Secrets Manager is purpose-built for sensitive credentials and features built-in, automatic secret rotation like changing a database password every 30 days. 
+While both store configuration data, Secrets Manager is purpose-built for sensitive credentials and features built-in, automatic secret rotation like changing a database password. 
 SSM Parameter Store is primarily for plain-text configuration (like endpoint URLs), and while it can store secure strings, it lacks native, automatic rotation capabilities.
 
 
