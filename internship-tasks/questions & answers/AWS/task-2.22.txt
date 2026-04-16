@@ -1,0 +1,34 @@
+1. What is the difference between a Log Group and a Log Stream?
+* Log Group is a high-level folder that collects related logs for an entire application or service. 
+* Log Stream is the continuous sequence of log events coming from one specific source, like a single EC2 instance or container.
+
+
+2. Why is centralized logging important in production?
+In production, instances are constantly created and destroyed by Auto Scaling Groups. Centralized logging ensures that even if an EC2 instance crashes or gets terminated, 
+its log data is safely stored in a central location (like CloudWatch). This guarantees you never lose the evidence needed to investigate an outage.
+
+
+3. Why should production systems avoid relying on SSH for log debugging?
+Relying on SSH does not scale and is unreliable because production instances are frequently replaced. It also creates security risks and slows down incident response. 
+Centralized logging solves this by allowing you to search logs instantly without needing direct server access.
+
+
+4. What is log retention and why does it matter for both cost and compliance?
+Log retention is a configuration policy that defines exactly how long log data is kept before AWS automatically deletes it e.g: 7 days or 30 days.
+* Cost: Storing gigabytes of logs indefinitely is very expensive; retention automatically clears out old data to save money.
+* Compliance: Many legal frameworks and security audits require you to safely retain logs for a specific time period to prove your system's security history.
+
+
+5. What types of issues are easier to detect in logs vs metrics?
+* Metrics are great for detecting high-level, quantitative thresholds, like "CPU is over 90%" or "Traffic spiked by 50%."
+* Logs are essential for detecting qualitative, root-cause issues, such as a "Database connection timeout," a "Null pointer exception in the code," or finding the exact IP address of a malicious user.
+
+
+6. How does the CloudWatch Agent collect and ship logs from an EC2 instance?
+The CloudWatch Agent runs as a background service inside the EC2 instance. provide it with a JSON configuration file that explicitly tells it which local file paths to monitor like /var/log/nginx/error.log. 
+The agent continuously reads new entries appended to these files and securely ships them out to the designated Log Groups in CloudWatch.
+
+
+7. What is the difference between metrics and logs in terms of what they tell you about a problem?
+* Metrics provide the problem exists by tracking high-level system behavior, like a sudden spike in CPU. 
+* Logs provide the exact text context, stack traces, and detailed error messages needed to actually debug and fix the problem.
