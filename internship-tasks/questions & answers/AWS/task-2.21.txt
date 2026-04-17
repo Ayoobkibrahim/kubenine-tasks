@@ -4,7 +4,7 @@ However, memory allocation and disk file system usage are managed entirely by th
 AWS does not cross this boundary to peek inside OS to see how much RAM or disk space is actually free.
 
 
-Question 2: What is the difference between hypervisor-level and OS-level metrics?
+2. What is the difference between hypervisor-level and OS-level metrics?
 * Hypervisor-level metrics are collected from the underlying physical hardware hosting the virtual machine, tracking raw resource allocation like CPU and Network. 
 * OS-level metrics are collected from inside the virtual machine's operating system, tracking internal resource management like RAM and available disk space.
 
