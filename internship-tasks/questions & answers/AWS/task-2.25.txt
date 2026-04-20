@@ -1,0 +1,33 @@
+1. What is the difference between a task definition and a task in ECS?
+A task definition is the blueprint or template that describes exactly how container should run, including the image, CPU, memory, and ports. A task is the actual, 
+live running instance of that blueprint on ECS cluster.
+
+
+2. Why does Fargate remove the need to manage EC2 instances?
+Fargate is a serverless compute engine for containers where AWS fully manages the underlying infrastructure. Instead of provisioning, patching, and scaling serversself, 
+simply specify container's resource requirements, and AWS provides the exact compute capacity on demand.
+
+
+3. What networking mode does Fargate use, and what does it mean for each task?
+Fargate exclusively uses the awsvpc networking mode. This means every single running task gets its own dedicated Elastic Network Interface (ENI) and private IP address, 
+allowing it to have the same secure networking properties as a standalone EC2 instance.
+
+
+4. Why must you enable public IP assignment when running a task in a public subnet?
+Because the task is running in a public subnet, its Elastic Network Interface (ENI) requires a public IP to route traffic through the VPC's Internet Gateway. Without it, 
+the task won't be able to reach out to the internet to pull the public Docker image (like NGINX), nor will it be able to serve the webpage to external users.
+
+5. What happens if the security group does not allow inbound traffic on port 80?
+The container will still successfully start and run inside Fargate, but it will be entirely unreachable from the outside. Any web browser attempting to access 
+the task's IP address on port 80 will simply time out because the security group will drop the traffic.
+
+
+
+6. How does ECS know which container image to pull and which port to expose?
+ECS reads this information directly from task definition. When create the task definition, explicitly define the container configurations, 
+such as stating the image name (nginx) and setting the container port mapping to port 80.
+
+
+7. What is a Fargate capacity provider and how does it differ from an EC2 capacity provider?
+A Fargate capacity provider automatically handles the serverless compute needed for tasks on a pay-as-you-go basis with zero infrastructure management. 
+An EC2 capacity provider, on the other hand, requires to actively manage, scale, and patch a cluster of EC2 instances that tasks run on.
