@@ -1,0 +1,33 @@
+1. What is the difference between AWS managed keys and customer managed keys?
+AWS managed keys are automatically created, managed, and rotated by AWS for specific services, meaning have no control over their access policies or rotation schedule. 
+Customer managed keys, on the other hand, are created and fully controlled by, allowing to define granular key policies, set custom rotation schedules, and share the keys across different AWS accounts.
+
+
+2. Why might an organization prefer customer managed keys over AWS managed keys?
+Organizations prefer customer managed keys because they provide granular control over exactly who can administer and use the keys via custom key policies. They are also essential for meeting strict compliance requirements, 
+as they allow for manual key rotation schedules, cross-account access, and the ability to immediately disable or delete the key if a breach is suspected.
+
+
+3. What is a KMS key policy and how does it differ from an IAM policy?
+A KMS key policy is a resource-based policy attached directly to the encryption key that dictates exactly who can access and manage it. While an IAM policy defines what a specific user or role is allowed to do, 
+a key policy is the primary, mandatory authorization mechanism for the key itself; typically, both must align to grant a user permission to encrypt or decrypt data.
+
+
+4. What happens if a user tries to read an S3 object encrypted with a KMS key they don't have kms:Decrypt permission for?
+The request will immediately fail, and AWS will return an "Access Denied" error. Even if the user has full S3 permissions to read the object, 
+they cannot access the plaintext data without the explicit kms:Decrypt permission for the specific key used to lock it.
+
+
+5. Why is using a single KMS key for multiple services (S3, SSM) a valid approach?
+Using a single customer managed key across multiple services centralizes encryption strategy and simplifies auditing. It allows an application to use a single IAM role 
+with just one kms:Decrypt permission to seamlessly access both an encrypted S3 bucket and secure SSM parameters, rather than managing multiple complex policies.
+
+
+6. What is encryption at rest and why does it matter for data stored in S3 and Parameter Store?
+Encryption at rest means data is encrypted when it is physically stored on disk, protecting it from unauthorized access if the underlying storage media is somehow compromised or accessed directly. 
+For services like S3 and Parameter Store, it ensures that sensitive data, such as database credentials or private documents, remains secure, unreadable to unauthorized parties, and compliant with data protection standards.
+
+
+7. If you delete a KMS key, what happens to the data encrypted with it?
+The data encrypted with it becomes permanently unreadable and is effectively lost forever, because the cryptographic material required to decrypt it no longer exists. Because this data loss is permanent, 
+AWS enforces a mandatory waiting period of 7 to 30 days before actual deletion to prevent accidental mistakes.
