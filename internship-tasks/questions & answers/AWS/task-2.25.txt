@@ -17,6 +17,7 @@ allowing it to have the same secure networking properties as a standalone EC2 in
 Because the task is running in a public subnet, its Elastic Network Interface (ENI) requires a public IP to route traffic through the VPC's Internet Gateway. Without it, 
 the task won't be able to reach out to the internet to pull the public Docker image (like NGINX), nor will it be able to serve the webpage to external users.
 
+
 5. What happens if the security group does not allow inbound traffic on port 80?
 The container will still successfully start and run inside Fargate, but it will be entirely unreachable from the outside. Any web browser attempting to access 
 the task's IP address on port 80 will simply time out because the security group will drop the traffic.
