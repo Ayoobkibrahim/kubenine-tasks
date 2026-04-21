@@ -1,0 +1,31 @@
+1. What is the difference between a Task Role and a Task Execution Role? Why are they separate?
+The Task Execution Role is used by the ECS infrastructure itself to perform setup actions like pulling container images from ECR and pushing logs to CloudWatch. 
+The Task Role is used by actual application code running inside the container to access other AWS services like S3 or SSM. They are kept separate to enforce strict security boundaries, 
+ensuring application only has access to its own data and not the underlying container management infrastructure.
+
+2. Why should ECS tasks run in private subnets instead of public subnets?
+Running tasks in private subnets ensures application containers are completely isolated and unreachable directly from the public internet. This drastically reduces  security attack surface by forcing all external user traffic to pass through a tightly controlled, monitored Application Load Balancer (ALB).
+
+3. Why do private subnets need a NAT Gateway for ECS Fargate tasks to work?
+Even though the tasks are isolated from incoming internet traffic, they still need to initiate outbound connections to pull Docker images from public registries or talk to AWS service endpoints. 
+The NAT Gateway, which sits in a public subnet, acts as a secure proxy that allows these private tasks to reach the internet without exposing their own private IP addresses.
+
+4. Why must the ALB target type be IP when using Fargate?
+Fargate abstracts away the underlying servers, meaning there are no traditional EC2 instance IDs to register with a load balancer. Because Fargate uses the awsvpc network mode, 
+every task gets its own dedicated private IP address, so the ALB must route traffic directly to those specific IP addresses.
+
+5. What happens if the container exceeds its configured memory limit?
+The container runtime will abruptly terminate the container with an OutOfMemory (OOM) Killed error. The ECS Service will instantly detect that the task has failed, 
+clear it out, and automatically provision a brand new task to maintain application's desired healthy count.
+
+6. Why is it a security risk to give the Task Role broad managed policies like AmazonS3FullAccess?
+If a hacker manages to compromise application container, a broad policy gives them full administrative control to read, modify, or delete every single S3 bucket across entire AWS account. 
+In production environments, we strictly follow the principle of least privilege, allowing the container to access only the exact buckets or parameters it explicitly needs.
+
+7. How does the ALB know which task IPs to send traffic to?
+When link an ECS Service to an ALB Target Group, ECS handles the routing dynamically behind the scenes. Whenever ECS spins up a new task, 
+it automatically registers that task's new private IP with the target group, and automatically deregisters the IP if the task fails a health check or is spun down.
+
+8. What is the difference between task-level and container-level resource allocation in Fargate?
+Task-level allocation defines the total hard limits of CPU and memory provisioned for the entire Fargate task . Container-level allocation determines how 
+those total resources are sliced up and distributed among the individual containers running inside that specific task.
