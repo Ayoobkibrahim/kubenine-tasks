@@ -1,0 +1,31 @@
+1. What is the difference between target tracking scaling and step scaling?
+Target tracking scaling automatically adds or removes tasks to keep a specific metric, like CPU utilization, consistently at a defined target percentage. 
+Step scaling gives more granular control by letting define explicit step adjustments, such as adding exactly one task if CPU hits 50%, and two tasks if it hits 70%.
+
+2. Why are minimum and maximum task limits important for auto scaling?
+Minimum limits ensure application always has enough baseline capacity to remain highly available and serve incoming traffic immediately. 
+Maximum limits act as a critical financial safety net, preventing runaway AWS costs from an infinite scale-out event caused by a massive traffic spike or a rogue application bug.
+
+3. What CloudWatch metrics are commonly used to scale ECS services?
+The two most common CloudWatch metrics used for ECS auto scaling are CPUUtilization and MemoryUtilization. 
+These calculate the average resource consumption across all running tasks in service to help the system determine if more or less capacity is needed.
+
+4. What is a cooldown period and what problem does it solve?
+A cooldown period is a mandatory pause applied after a scaling action during which no further auto-scaling events can occur. This prevents "oscillation" or "flapping," 
+a problem where the system rapidly spins tasks up and down before the newly launched tasks have had enough time to stabilize and affect the CloudWatch metrics.
+
+5. What happens when ECS launches a new task — how does traffic reach it?
+When ECS launches a new task, it automatically registers that specific task's IP address with the Application Load Balancer's target group. 
+Once the new task boots up and successfully passes the ALB's health checks, the load balancer automatically begins routing live user traffic to it.
+
+6. If CPU stays at 15% and your threshold is 20%, will scaling happen? What if it briefly spikes to 25% and drops back?
+If CPU stays at 15%, no scaling out will occur because the 20% threshold has not been breached. If it briefly spikes to 25% and drops back immediately, 
+scaling still likely won't happen; CloudWatch typically requires the metric to stay above the threshold for a sustained, predefined period (like 3 minutes) to prevent scaling off of momentary anomalies.
+
+7. Why might you want different cooldown periods for scale-out vs scale-in?
+Generally configure a very short scale-out cooldown to react rapidly to sudden traffic spikes, ensuring users don't experience latency or downtime. 
+configure a much longer scale-in cooldown to conservatively remove tasks, ensuring traffic has genuinely dropped off and preventing the system from prematurely killing resources it might immediately need again.
+
+8. When you update a service's task definition, how does ECS replace the running tasks?
+ECS performs a rolling update by safely launching the new tasks alongside the old ones. Once the new tasks are fully running and actively passing health checks, 
+ECS automatically deregisters the old tasks from the load balancer, drains their remaining connections, and terminates them to ensure zero downtime.
