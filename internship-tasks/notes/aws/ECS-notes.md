@@ -164,3 +164,101 @@ Because Fargate tasks are ephemeral and you cannot SSH into the underlying serve
 3. How to find and read logs for a specific task
 
 You can view these logs by navigating to the CloudWatch console and opening the specific Log Group defined in your task definition. Inside, you will find individual Log Streams, with each stream corresponding to the logs of one specific task ID.
+
+
+
+* Updating an ECS Service — Task Definition and Network Configuration
+
+1. How to create a new task definition revision with a different image
+
+To use a new container image, you simply create a new revision of your existing task definition and update the image parameter to point to the new ECR URI or Docker Hub tag. This creates an immutable, versioned blueprint of your new application state.
+
+2. How to update a running ECS service to use a new task definition
+
+You trigger an update by editing your running ECS service and selecting the newly created task definition revision. ECS will immediately begin the deployment process to transition your application to the new version.
+
+3. How to change the network configuration of a service
+
+During a service update, you can modify the network configuration to change which subnets or security groups your tasks are deployed into. This allows you to seamlessly migrate a running service from private subnets to public subnets without rebuilding the entire cluster.
+
+4. How ECS performs a rolling update
+
+During a rolling update, ECS spins up new tasks using the updated task definition while the old tasks are still running. Once the load balancer confirms the new tasks are healthy, ECS safely drains traffic from the old tasks and stops them, resulting in zero downtime for your users.
+
+5. Why using a lightweight image (NGINX) is better for scaling experiments
+
+Lightweight images like NGINX pull from the registry and start up in seconds. This allows you to rapidly observe and test auto-scaling behaviors without wasting time waiting for a heavy application framework (like Java or Node.js) to boot up.
+
+6. Why public subnets are acceptable here
+
+Since NGINX is only serving public static content and doesn't hold sensitive business logic or require access to internal AWS databases, it doesn't need strict private isolation. Placing it in a public subnet with a public IP is perfectly safe and simplifies the networking setup for static web hosting.
+
+
+
+
+* ECS Service Auto Scaling
+
+1. How auto scaling adjusts the desired task count
+
+Auto scaling continuously monitors your application's load and automatically adjusts the "desired count" of tasks up or down. It ensures you have enough compute power to handle traffic spikes while scaling down during quiet periods to save costs.
+
+2. What minimum, desired, and maximum task counts mean
+
+The minimum count ensures your application never scales down to zero tasks, while the maximum count acts as a hard ceiling to prevent a runaway AWS bill. The desired count is the dynamic number of tasks currently required to handle the active workload within those boundaries.
+
+3. How scaling policies define conditions
+
+Scaling policies are the rules you define that link CloudWatch metrics to scaling actions. For example, a scale-out policy might say "add 2 tasks if CPU exceeds 75%," while a scale-in policy might say "remove 1 task if CPU drops below 30%."
+
+
+
+* CloudWatch Metrics for ECS
+
+1. What CPUUtilization and MemoryUtilization represent
+
+These metrics represent the percentage of the allocated CPU and memory that your containers are actively consuming. They are the primary health and load indicators used to trigger your auto-scaling policies.
+
+2. How these metrics are calculated
+
+ECS aggregates the resource usage of every single task running under a specific service and calculates the overall average. This means if one task is at 100% CPU and another is at 0%, the service's average CPU utilization will be reported as 50%.
+
+3. Where to find ECS metrics in CloudWatch
+
+You can find these metrics in the AWS CloudWatch console under the AWS/ECS namespace. They can be filtered by Cluster Name and Service Name to build custom monitoring dashboards for your production workloads.
+
+
+
+
+* Scaling Policy Types
+
+1. Target Tracking Scaling
+
+Target tracking acts like a thermostat for your infrastructure; you simply declare a target metric (like "maintain 50% CPU"), and AWS automatically calculates when and how many tasks to add or remove to keep the average at that exact number.
+
+2.Step Scaling
+
+Step scaling gives you fine-grained, manual control over scaling actions based on specific metric thresholds. You can define aggressive steps, such as adding 1 task if CPU hits 60%, but panicking and adding 4 tasks instantly if CPU spikes to 90%.
+
+3. When to use target tracking vs step scaling
+
+Use Target Tracking as your default choice, as it is highly automated and handles standard web traffic beautifully. Reserve Step Scaling for workloads with wildly unpredictable, instantaneous traffic spikes where you need custom, aggressive scaling reactions.
+
+
+
+* Cooldown Periods
+
+1. What a cooldown period is and why it exists
+
+A cooldown is a mandatory resting period that blocks the auto-scaler from taking any further action immediately after a scaling event occurs. It exists to give the newly launched tasks time to boot up, start handling traffic, and affect the CloudWatch metrics.
+
+2. How cooldown prevents oscillation
+
+Without a cooldown, a system might scale out, instantly see a drop in average CPU, and immediately scale back in, only to see the CPU spike again. The cooldown prevents this endless, costly loop of "flapping" or oscillation.
+
+3. Why scale-out and scale-in cooldowns may differ
+
+Scale-out cooldowns are typically kept very short (e.g., 60 seconds) so the system can react aggressively to sudden traffic floods. Scale-in cooldowns are usually much longer (e.g., 300 seconds) to ensure a drop in traffic is permanent before you start destroying valuable compute resources.
+
+4. What happens when metrics fluctuate around a threshold
+
+If your CPU metric rapidly bounces above and below a scaling threshold, the cooldown period ensures the auto-scaler ignores the momentary noise. It forces the system to wait for the metrics to stabilize, preventing unnecessary task thrashing.
