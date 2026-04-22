@@ -1,0 +1,53 @@
+AWS Lambda
+
+1. What is the difference between Lambda and EC2? When would you choose one over the other?
+EC2 provides virtual servers where you manage the OS, patching, and scaling, while Lambda is completely serverless—you just provide the code, 
+and AWS handles the execution and scaling automatically. You choose EC2 for long-running, continuous applications, and Lambda for short-lived, 
+event-driven tasks where you only want to pay for exact execution time.
+
+2. What is a Lambda handler and what arguments does it receive?
+The handler is the main entry point function that AWS Lambda executes when the function is triggered. It typically receives two arguments: 
+the event object (which contains the data from the trigger) and the context object (which contains runtime information about the invocation).
+
+3. Why does Lambda need an IAM execution role? What happens if the role has no permissions?
+Lambda requires an execution role to securely grant your code permission to interact with other AWS services, like reading an S3 bucket or writing to CloudWatch. 
+If the role has no permissions, the function will fail with an "Access Denied" error—it won't even be able to push its own execution logs to CloudWatch!
+
+4. What is a cold start in Lambda and why does it happen?
+A cold start is a slight latency delay that occurs when a Lambda function is invoked for the very first time, or after a long period of inactivity. 
+It happens because AWS has to provision a new underlying container, load the runtime, and initialize your code before it can actually run it.
+
+5. Where do Lambda logs go automatically, and why?
+Lambda automatically streams all standard output (like print() statements) and error logs directly to Amazon CloudWatch Logs. 
+Because Lambda containers are ephemeral and destroyed after execution, sending logs to CloudWatch ensures the history of your function's behavior is permanently saved for debugging.
+
+6. What happens if a Lambda function runs longer than its configured timeout?
+The function is forcefully terminated by AWS, throwing a timeout error, and the execution completely stops. 
+You can configure this timeout anywhere from 1 second up to a hard maximum limit of 15 minutes.
+
+
+Amazon EventBridge
+
+1. What is the difference between a scheduled rule and an event pattern rule?
+A scheduled rule triggers based on a specific time interval (like a cron job running every hour). An event pattern rule triggers dynamically in response to 
+specific JSON data flowing through the bus, such as an event that says "an EC2 instance just shut down."
+
+2. What is the default event bus and what publishes to it?
+The default event bus is the central routing hub built into every AWS account. Almost all AWS services automatically 
+publish their operational state changes and events directly to this default bus without you having to configure anything.
+
+3. How does EventBridge know which events to match? What is an event pattern?
+EventBridge knows what to match by using an "event pattern", which is a simple JSON filter you define. If an incoming event's 
+JSON structure and values match the specific fields defined in your pattern, EventBridge catches it and routes it to the target.
+
+4. Can one EventBridge rule have multiple targets? What happens if one target fails?
+Yes, a single EventBridge rule can route the exact same event to multiple independent targets. 
+If the delivery or execution fails for one target, it does not impact the successful delivery to the other targets.
+
+5. What is the difference between EventBridge and SNS?
+EventBridge is an event bus built for deeply filtering complex JSON events and routing them across decoupled applications. 
+SNS is a more traditional "pub/sub" messaging service designed for high-throughput, simple fan-out delivery to endpoints like SMS, emails, or SQS queues.
+
+6. How would you use EventBridge to replace a cron job that runs on an EC2 instance?
+You would simply create an EventBridge scheduled rule using the exact same cron expression, and set the target to trigger a 
+Lambda function or an ECS task. This eliminates the need to pay for and maintain a 24/7 EC2 instance just to run a script once a day.
