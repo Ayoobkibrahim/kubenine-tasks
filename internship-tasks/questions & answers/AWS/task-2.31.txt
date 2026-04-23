@@ -1,0 +1,27 @@
+1. What is the difference between rate(1 minute) and a cron expression in EventBridge?
+A rate expression runs at a simple, fixed interval (like every 1 minute or every 5 days), regardless of the exact time on the clock. 
+A cron expression gives you precise, calendar-level control to run tasks at specific dates and times, such as "every Monday morning at 8:00 AM."
+
+2. Why is it better to pass the bucket name as an environment variable instead of hardcoding it?
+Passing it as an environment variable separates your configuration from your actual logic, making the function highly reusable. 
+It allows you to deploy the exact same source code to development, staging, and production environments simply by updating the environment variable for each stage.
+
+3. What does list_objects_v2 return and how do you handle pagination if the bucket has more than 1000 objects?
+The list_objects_v2 API returns a JSON response containing an array of up to 1,000 objects along with their metadata. To handle pagination, 
+you check the response for a NextContinuationToken; if it exists, you simply pass that exact token into your next API call to fetch the next batch of 1,000 items.
+
+4. What is the difference between this task (scheduled Lambda) and Task 2.30 (event-driven Lambda)?
+Task 2.30 was reactive and event-driven, meaning the Lambda only executed instantly in response to a specific trigger, like a file being uploaded. This task is proactive and scheduled, 
+meaning the Lambda wakes itself up on a strict time interval to perform a batch operation, regardless of whether any external action occurred.
+
+5. In a real DevOps scenario, when would you choose a scheduled Lambda over an event-driven one?
+I would use an event-driven Lambda when I need real-time processing, like instantly resizing an image the moment a user uploads it. 
+I would use a scheduled Lambda for periodic infrastructure maintenance, like generating a nightly database backup, running hourly health checks, or cleaning up temporary files every weekend.
+
+6. What happens if you forget to disable the EventBridge rule after testing?
+The EventBridge rule will continue to trigger the Lambda function every single minute, 24 hours a day, 7 days a week. While individual Lambda runs are cheap, 
+this endless loop will unnecessarily consume your AWS budget and flood your CloudWatch logs with thousands of useless entries.
+
+7. Why must the EventBridge rule have permission to invoke Lambda, and where is that permission configured?
+By default, AWS services are strictly isolated, so EventBridge has no inherent authority to execute your compute resources. 
+You grant this permission by configuring a resource-based policy attached directly to the Lambda function itself, explicitly authorizing the EventBridge rule to trigger it.
