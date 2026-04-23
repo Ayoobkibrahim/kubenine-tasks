@@ -1,0 +1,35 @@
+1. What is the difference between an IAM role trust policy and a permissions policy?
+A trust policy defines who or what service (like lambda.amazonaws.com) is allowed to assume the IAM role. 
+A permissions policy defines exactly what actions (like reading from a specific S3 bucket or writing to CloudWatch) that role is allowed to perform once it has been assumed.
+eg : trust policy is the security guard checking ID at the front door, and the permissions policy is the keycard that decides which specific rooms can enter once are inside!
+
+
+2. Why does Lambda use a role instead of an IAM user with access keys?
+Using an IAM role allows AWS to securely and automatically manage temporary, short-lived credentials for the function's execution environment. 
+This completely eliminates the massive security risk of hardcoding, rotating, or accidentally exposing permanent IAM user access keys in source code
+
+
+3. What is a resource-based policy, and why does S3 need permission to invoke Lambda?
+A resource-based policy is an IAM permissions policy attached directly to an AWS resource like a Lambda function that dictates exactly who or what is allowed to access or trigger it. 
+By default, AWS services are strictly isolated for security reasons, Amazon S3 has no inherent authority to interact with compute resources. Therefore, 
+S3 requires a resource-based policy attached to the Lambda function explicitly granting it the lambda:InvokeFunction permission, securely authorizing that specific bucket to trigger the function whenever an event occurs.
+
+
+4. What does the S3 event payload look like? How do you extract the object key from it?
+The S3 event payload looks like a nested JSON objects, where the most important part is an array called Records that holds all the details about the file that was just created. 
+To extract the exact name of the uploaded file (the object key) inside a Python Lambda function, simply navigate through that dictionary step-by-step using this exact syntax: event['Records'][0]['s3']['object']['key'].
+
+
+5. If you upload 3 files at the same time, how many times does Lambda trigger?
+It triggers exactly three times concurrently. S3 treats every single object creation as a completely independent event. So, if three files drop at the exact same millisecond, 
+AWS instantly spins up three separate Lambda executions to process them in parallel.
+
+
+
+6. Where do Lambda logs go and how do you find them in CloudWatch?
+Logs go to CloudWatch Logs under a specific Log Group named /aws/lambda/task-2-30-s3-logger. Inside that group,  find Log Streams organized by the time of execution. 
+
+
+7. Why is AmazonS3ReadOnlyAccess dangerous on a Lambda role even if you only need read access?
+AmazonS3ReadOnlyAccess is a broad AWS managed policy that grants read access to every single S3 bucket across entire AWS account. If an attacker manages to compromise Lambda function, 
+they could use those permissions to read  highly sensitive data from buckets the application was never meant to access, completely violating the principle of least privilege.
