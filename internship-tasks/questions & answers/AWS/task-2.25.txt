@@ -4,9 +4,9 @@ live running instance of that blueprint on ECS cluster.
 
 
 2. Why does Fargate remove the need to manage EC2 instances?
-Fargate is a serverless compute engine for containers where AWS fully manages the underlying infrastructure. Instead of provisioning, patching, and scaling serversself, 
-simply specify container's resource requirements, and AWS provides the exact compute capacity on demand.
-
+Fargate acts as a completely serverless compute engine, meaning AWS automatically manages all the physical hardware and infrastructure for behind the scenes. 
+Because of this abstraction, no longer have to worry about provisioning, scaling, or patching any EC2 operating systems. 
+Instead, simply tell AWS exactly how much CPU and memory container requires, and Fargate instantly runs it.
 
 3. What networking mode does Fargate use, and what does it mean for each task?
 Fargate exclusively uses the awsvpc networking mode. This means every single running task gets its own dedicated Elastic Network Interface (ENI) and private IP address, 
