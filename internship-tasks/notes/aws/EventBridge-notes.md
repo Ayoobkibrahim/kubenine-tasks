@@ -27,3 +27,69 @@ Event patterns use a JSON format to create a strict matching template for incomi
 7. What targets EventBridge can route to
 
 Once a rule matches an event, EventBridge can push that event payload to a wide variety of AWS targets. Common targets include triggering a Lambda function to run code, starting a Step Functions state machine, or dropping the event into an SNS topic or SQS queue for downstream processing.
+
+
+
+
+* EventBridge Scheduled Rules
+
+1. The difference between rate() expressions and cron expressions
+
+A rate() expression dictates a fixed, recurring interval (like "every 5 minutes" or "every 2 days"), making it perfect for simple, consistent tasks. A cron() expression provides fine-grained scheduling control, allowing you to trigger events at specific times and days (like "every Monday at 8:00 AM UTC").
+
+2. How EventBridge scheduled rules replace traditional cron jobs on servers
+
+Traditionally, running a cron job required maintaining a constantly running, patched EC2 instance just to execute a script occasionally. EventBridge eliminates this by providing a fully managed, serverless scheduler that triggers your code only when needed, saving both money and maintenance overhead.
+
+3.How EventBridge invokes Lambda as a target
+
+When the scheduled time arrives, the EventBridge rule fires and sends a JSON event directly to the Lambda service API. This triggers the specified Lambda function to wake up and execute its handler code automatically.
+
+4. Why the Lambda resource-based policy must allow EventBridge to invoke it
+
+Because Lambda is secure by default, external services cannot run your code without explicit permission. You must configure Lambda's resource-based policy to explicitly grant the events.amazonaws.com service principal the lambda:InvokeFunction permission for that specific rule.
+
+
+
+* Lambda Environment Variables
+
+1. Why configuration values should be passed as environment variables
+
+Passing values like S3 bucket names or API endpoints as environment variables allows you to change the function's configuration without needing to edit or redeploy the actual application code. This makes it incredibly easy to use the exact same code deployment across different environments (like Dev, Staging, and Production).
+
+2. How to access environment variables in Python using os.environ
+
+In your Python Lambda code, you simply import the built-in os module and use os.environ.get('YOUR_VARIABLE_NAME'). This securely fetches the value injected by the Lambda runtime environment during the container's boot process.
+
+3. Why hardcoding values in Lambda code is a bad practice
+
+Hardcoding values makes your code rigid, brittle, and difficult to test. Worse, if you hardcode sensitive data like database passwords or API keys, you risk exposing them when committing the code to a version control system like GitHub.
+
+
+
+
+* Working with S3 via boto3
+
+1. How to use list_objects_v2 to enumerate all objects in a bucket
+
+Using the boto3 S3 client in Python, you call the list_objects_v2(Bucket='bucket-name') method. This API call returns a dictionary containing a Contents list, which holds the metadata for the files stored inside the specified bucket.
+
+2. How to handle pagination when a bucket has more than 1000 objects
+
+By default, the S3 API only returns a maximum of 1,000 objects per response to prevent memory overload. If the bucket has more files, the response includes a NextContinuationToken, which you must pass into your next list_objects_v2 API call inside a while loop until all objects are retrieved.
+
+3. How to calculate total size from the Size field of each object
+
+As you iterate through the list of objects returned by S3, you can access the exact file size in bytes using the Size key within each object's metadata dictionary. You simply maintain a running total variable in Python and add each object's Size to it during the loop.
+
+
+
+* Least Privilege IAM (continued)
+
+1. The same principles apply — custom inline policies scoped to specific resources
+
+When granting your Lambda function access to S3, you must explicitly define only the specific API actions it needs (like s3:ListBucket) in a custom JSON policy. You must restrict the Resource field strictly to the exact ARN of the bucket it needs to interact with, rather than using broad * wildcards.
+
+2. The difference between bucket-level actions and object-level actions
+
+Bucket-level actions, such as s3:ListBucket, operate on the container itself and require the ARN format arn:aws:s3:::your-bucket-name. Object-level actions, such as s3:GetObject or s3:PutObject, operate on the files inside the bucket and require the ARN format arn:aws:s3:::your-bucket-name/*.
