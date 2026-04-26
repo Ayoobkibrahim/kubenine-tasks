@@ -1,0 +1,27 @@
+1. What is the difference between a customer managed policy, an inline policy, and an AWS managed policy?
+An AWS managed policy is pre-built by AWS for common use cases and cannot be edited. A customer managed policy is created by as a standalone, 
+reusable resource that can be attached to multiple roles. An inline policy is embedded directly into a single specific role and cannot be reused or attached to anything else.
+
+2. When would you use an inline policy vs a managed policy?
+use a managed policy when need to reuse the same permissions across multiple roles or users. 
+use an inline policy when want to ensure those specific permissions are strictly tied to one role and cannot be accidentally attached anywhere else.
+
+3. What is a trust policy (assume role policy) and why does a role need one?
+A trust policy defines exactly who or what (like an EC2 instance, Lambda function, or another user) is allowed to assume the IAM role. A role needs it because, 
+without a trust policy, AWS wouldn't know which entities are authorized to temporarily use the permissions attached to that role.
+
+4. What Terraform resource type do you use for an inline policy vs an attached policy?
+For an inline policy, use the aws_iam_role_policy resource to embed the permissions directly into the role. For an attached managed policy, 
+use the aws_iam_role_policy_attachment resource to link a separately existing policy to the role.
+
+5. What is a data source in Terraform? How is it different from a resource?
+A data source (using the data block) allows Terraform to fetch and read information about infrastructure that already exists, 
+like an AWS managed policy. The main difference is that a data source only reads existing information, whereas a resource block actively creates, updates, or deletes infrastructure.
+
+6. If you delete the managed policy resource from your .tf file and run apply, what happens to the policy in AWS?
+Terraform will notice that the code for the policy is gone and will automatically delete the actual managed policy from AWS environment. 
+This happens because Terraform always makes real-world AWS infrastructure match exactly what is written in current code.
+
+7. You have the same permissions defined in the inline policy AND the managed policy. What happens — do they conflict, or do they combine?
+They simply combine together. IAM evaluates all attached and inline policies as a single set of permissions, 
+so if both policies "Allow" the same action, there is no conflict and the action is permitted.
