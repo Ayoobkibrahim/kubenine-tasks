@@ -1,0 +1,38 @@
+1. What is Infrastructure as Code and why is it better than manual provisioning?
+Infrastructure as Code (IaC) is the defining and managing infrastructure using code instead of manually creating resources in AWS Console. 
+It is better than manual provisioning because it makes infrastructure repeatable, version-controllable, and eliminates human errors caused by manual configuration.
+
+
+2. What does terraform plan do and why should you always run it before apply?
+terraform plan compares code to the current state and shows exactly what Terraform plans to create, modify, or delete. 
+should always run it before apply to catch mistakes and verify that no accidental changes will happen to  infrastructure.
+
+
+3. What is the Terraform state file? What information does it store?
+The state file acts as Terraform's memory of cloud environment, It stores all the crucial details, including the exact current configuration of  deployed infrastructure, 
+unique cloud resource IDs, and metadata that helps Terraform understand the relationships and dependencies between  resources.
+
+
+4. What happens if you delete the state file but the resources still exist in AWS?
+If lose the state file, Terraform loses its "memory" and no longer knows it manages those existing AWS resources. If run terraform apply again, 
+Terraform will think the resources are missing and will attempt to create them all over again, causing errors or duplicate infrastructure.
+
+
+5. Why do we store state in S3 instead of keeping it local?
+We store the Terraform state file in an S3 bucket to create a centralized, single source of truth that entire team can securely access. If keep the state file locally on personal laptop, 
+other developers cannot safely update the infrastructure without causing conflicts or duplicating resources. storing it remotely protects infrastructure configuration from permanent data loss if local machine ever crashes or breaks.
+
+
+6. What is state locking and what problem does DynamoDB solve?
+State locking is a safety mechanism that prevents multiple users from running Terraform operations at the exact same time, which would corrupt the state file. DynamoDB solves this by acting as the lock manager; when one person runs an apply, 
+DynamoDB locks the state file so nobody else can change it until the first job finishes.
+
+
+7. What is the difference between terraform.tfvars and variables.tf?
+The variables.tf file is used to declare that a variable exists, defining its name, type, and description. The terraform.tfvars file is used to actually assign the real, specific values to those variables for current deployment.
+
+
+
+8. If you run terraform apply and it fails halfway through, what happens to the resources that were already created?
+The resources that were successfully created before the failure will remain running in AWS, and Terraform will record them in the state file. Terraform does not automatically roll back changes; 
+must fix the error and run apply again to finish, or run destroy to clean up.

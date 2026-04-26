@@ -1,0 +1,1 @@
+bucket_name = "task-3-41-test-bucket-aki"
