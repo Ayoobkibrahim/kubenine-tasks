@@ -1,0 +1,6 @@
+# Terraform (applies to ALL tasks)
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
