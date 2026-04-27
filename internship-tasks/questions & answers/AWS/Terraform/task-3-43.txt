@@ -1,0 +1,43 @@
+1. What is a Terraform module? Why would you use a module instead of writing raw resources?
+A Terraform module is a packaged, reusable container of Terraform configurations that simplifies complex deployments. It use modules to avoid writing repetitive code, 
+enforce standardized best practices, and deploy large architectures (like a complete VPC) quickly with just a few input variables.
+
+2. What resources does the VPC module create behind the scenes when you call it?
+Behind the scenes, the AWS VPC module creates the core VPC, all public and private subnets, an Internet Gateway, NAT Gateways with Elastic IPs, and all the required route tables and routing associations. 
+It automatically links these components together so don't have to define every individual relationship manually.
+
+3. What would happen if you set it to false, and when would you want one NAT per AZ?
+If set to false, the module will automatically provision a dedicated NAT Gateway inside every single Availability Zone.It would design it this way for a strict production environment to 
+guarantee fault tolerance and eliminate a single point of failure. This ensures that if one Availability Zone failure, the private instances in Remaining zones will not lose their outbound internet access.
+
+4. How do you pin a module to a specific version? Why is this important?
+We pin a module by specifying the version argument in the module block, for example version = "5.1.2". This ensures Terraform always uses the same version of the module during deployments. 
+It is important because it prevents unexpected breaking changes and keeps infrastructure stable and predictable.
+
+5. How does the VPC module know which subnet is public vs private?
+The VPC module determines whether a subnet is public or private based on the variables public_subnets and private_subnets defined in the configuration. 
+It automatically assigns routing so that public subnets are connected to the Internet Gateway, while private subnets route traffic through the NAT Gateway.
+For example, if I define:
+public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnets = ["10.0.11.0/24", "10.0.12.0/24"]
+the module treats the first list as public and enables direct internet access, and the second list as private with controlled outbound access via NAT.
+
+6. If you wanted to add a database subnet tier (3 more subnets), how would you modify the module call?
+To add a database subnet tier, we extend the module by defining a new input variable like database_subnets with separate CIDR blocks. 
+The VPC module then automatically creates those subnets and configures their routing, typically keeping them isolated from direct internet access. 
+This is useful for databases because it improves security by placing them in private, controlled subnets with restricted access.
+
+7. Compare this Terraform approach to when you built the VPC manually in Task 2.1-2.4. What's easier? What's harder? What's better for a team?
+Using the module is much easier and faster because it automates dozens of routing rules and subnet associations in just a few lines of code. 
+It can feel harder initially because need to understand the module inputs and how everything works behind the scenes. 
+but it is better for a team because the infrastructure becomes version-controlled, repeatable, and less prone to human error.
+
+
+8. Why do we need a dedicated NACL for public subnets? What would happen if we only relied on Security Groups?
+A dedicated Network ACL acts as a broad perimeter firewall at the subnet level, blocking bad traffic before it ever gets close to resources. 
+If only relied on Security Groups, that traffic would be allowed into the subnet itself, forcing every single instance to act as its own isolated line of defense
+
+
+9. Why do NACL rules need to allow ephemeral ports (1024-65535)?
+Because NACLs are "stateless," they do not automatically remember or allow the return traffic of an allowed request. 
+must explicitly open the high ephemeral ports so that returning data from outbound web requests can successfully flow back into network.
