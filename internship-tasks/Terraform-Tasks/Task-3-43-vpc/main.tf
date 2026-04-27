@@ -30,8 +30,8 @@ module "vpc" {
   ]
 
   # NAT Gateway
-  enable_nat_gateway = true
-  single_nat_gateway = true
+  enable_nat_gateway = false
+  single_nat_gateway = false
 
 
   # Tags
