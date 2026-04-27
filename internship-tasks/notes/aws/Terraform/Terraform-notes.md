@@ -28,7 +28,7 @@ Variables allow you to pass dynamic input values into your Terraform code, makin
 * terraform apply executes those changes to build or modify the resources.
 * terraform destroy safely tears down all resources managed by that specific configuration.
 
-5. 1The plan/apply workflow and why plan matters before apply?
+5. 1The plan/apply workflow and why plan matters before apply? : 
 This workflow consists of writing code, running a plan to review proposed changes, and executing the apply to commit them. Running terraform plan is a crucial safety checkpoint that allows you to catch destructive errors and verify exactly what will be created, modified, or deleted before real-world changes occur.
 
 
