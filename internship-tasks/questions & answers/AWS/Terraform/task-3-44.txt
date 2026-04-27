@@ -1,0 +1,32 @@
+1. What is user_data in EC2? At what point in the instance lifecycle does it run?
+user_data is a configuration script passed to an EC2 instance to automate its setup, such as installing packages or downloading application code. 
+It executes exactly once at the very end of the instance's initial boot cycle.
+
+2. If your user_data script fails, how would you debug it? Where do you find the logs?
+If the user_data script fails, I would SSH into the instance and check the cloud-init logs to see what went wrong. The main file to look at is /var/log/cloud-init-output.log, 
+which contains the execution output and errors. I can also check /var/log/cloud-init.log for more detailed debugging information.
+
+3. What is terraform_remote_state and why is it better than hardcoding a VPC ID?
+terraform_remote_state is a data source that lets one Terraform configuration read outputs from another configuration’s state file. 
+It allows us to dynamically fetch values like VPC ID or subnet IDs instead of hardcoding them.
+This is better because it keeps configurations flexible, avoids manual errors, and ensures changes in one stack are automatically reflected in others.
+
+4. Why did we disable the NAT Gateway? What would happen if an instance in a private subnet tried to reach the internet now?
+We disabled the NAT Gateway to reduce cost, as the EC2 instance is placed in a public subnet. NAT Gateways incur hourly and data charges, so removing them is a cost optimization step.
+Without a NAT Gateway, instances in private subnets cannot access the internet, so any outbound requests like package updates or API calls would fail.
+
+5. You used a data "aws_ami" to find the AMI. Why is this better than hardcoding an AMI ID?
+AWS frequently updates AMIs for security patches, and AMI IDs are completely different across every AWS region. Using a data source dynamically fetches the latest, 
+correct AMI based on your filters, ensuring your code remains portable and secure over time without requiring manual updates.
+
+6. Why should SSH (port 22) be restricted to your IP and not open to 0.0.0.0/0?
+SSH should be restricted to your IP to ensure that only trusted sources can access the instance. If it is open to 0.0.0.0/0, anyone on the internet can attempt to connect, 
+increasing the risk of brute-force attacks and unauthorized access. Restricting it improves security by limiting exposure to only known and controlled access points.
+
+7. If you terminate the EC2 instance from the AWS Console (not Terraform), what happens when you run terraform plan next?
+Terraform will compare its state file to the actual AWS environment and notice that the instance is missing. It will detect that the real infrastructure 
+does not match the expected configuration. The terraform plan will then show that it will recreate the EC2 instance to match the code.
+
+8. What is the difference between the NACL rules (from Task 3.43) and the Security Group rules you created here? Why do we need both?
+Network ACLs act as a stateless, broad perimeter firewall at the subnet level, while Security Groups act as a stateful, granular firewall directly attached to individual instances. 
+We use both to create a "defense in depth" architecture, ensuring that if one security layer is misconfigured, the other is still there to protect the environment.
