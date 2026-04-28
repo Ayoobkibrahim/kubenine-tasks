@@ -1,0 +1,28 @@
+1. Why do we store the Slack webhook URL in SSM Parameter Store instead of terraform.tfvars?
+We store the Slack webhook URL in SSM Parameter Store to keep sensitive data secure and avoid exposing it in code. Terraform files like .tfvars can be committed to Git, 
+which is unsafe for secrets. SSM allows encryption using KMS and provides controlled access using IAM policies. This follows DevOps best practices for secure secret management.
+
+2. What is the difference between String and SecureString in SSM?
+A String parameter stores data in plain text without encryption. A SecureString parameter encrypts the value using AWS KMS, making it suitable for sensitive data. 
+SecureString ensures that only authorized users or services can decrypt and access the value. Therefore, SecureString is always used for secrets like passwords, tokens, or webhook URLs.
+
+3. Explain the full notification pipeline
+When the EC2 CPU usage crosses the defined threshold, CloudWatch changes the alarm state to ALARM. This alarm sends a notification to an SNS topic. 
+The SNS topic triggers a Lambda function created by the notify-slack module. The Lambda function then sends a formatted message to Slack using the webhook URL.
+
+4. What is an SNS topic and why is it used?
+SNS (Simple Notification Service) is a messaging service that enables communication between different AWS services. 
+It acts as a central hub where messages can be published and delivered to multiple subscribers. In this setup, 
+SNS connects CloudWatch and Lambda, making the system loosely coupled. This improves scalability, flexibility, and reliability of the alerting system.
+
+5. What is a realistic CPU threshold in production?
+In production environments, CPU thresholds are usually set between 70% and 80%. This helps avoid unnecessary alerts caused by normal system activity. 
+Alerts should only trigger when there is sustained high usage indicating a real issue. This approach reduces alert noise and improves monitoring efficiency.
+
+6. What are the three states of a CloudWatch alarm?
+CloudWatch alarms have three states: OK, ALARM, and INSUFFICIENT_DATA. OK means the metric is within the defined threshold and everything is normal. 
+ALARM means the metric has crossed the threshold and requires attention. INSUFFICIENT_DATA means there is not enough data available to determine the state.
+
+7. What happens if the SSM parameter is deleted?
+If the SSM parameter is deleted, Terraform will fail during the plan or apply stage. This is because Terraform cannot retrieve the webhook URL required for the Slack notification. 
+It will throw an error like “ParameterNotFound.” As a result, the monitoring setup will break until the parameter is recreated.
