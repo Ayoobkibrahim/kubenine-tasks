@@ -1,0 +1,32 @@
+1. Why do we place the ALB in public subnets and EC2 instances in private subnets?
+The Application Load Balancer is placed in public subnets because it needs to receive requests from the internet. Public subnets have a route to the Internet Gateway, 
+which allows external access. EC2 instances are placed in private subnets so they are not directly reachable from the internet. This design improves security by forcing 
+all traffic to pass through the load balancer.
+
+2. Why is allowing HTTP only from the ALB security group more secure than 0.0.0.0/0?
+Allowing HTTP only from the ALB security group ensures that only the load balancer can send traffic to the EC2 instances. If we allow 0.0.0.0/0, 
+anyone from the internet can directly access the instances. This increases the risk of attacks and bypasses the load balancer. Security group chaining creates a controlled and secure access path.
+
+3. What is a target group? How does the ALB know where to send traffic?
+A target group is a logical group of backend resources like EC2 instances. The ALB forwards incoming requests to the targets registered in this group. 
+It uses health checks to determine which instances are healthy and ready to serve traffic. Based on this, it distributes traffic only to healthy instances.
+
+4. What happens if one EC2 instance fails the health check?
+If one EC2 instance fails the health check, the ALB marks it as unhealthy. It immediately stops sending traffic to that instance. 
+The load balancer continues routing traffic to the remaining healthy instances. This ensures the application remains available and users do not face downtime.
+
+5. Why does the ALB require subnets in at least 2 Availability Zones?
+The ALB requires at least two Availability Zones to ensure high availability. If one AZ becomes unavailable due to failure, the other AZ can continue handling traffic. 
+This setup prevents a single point of failure. It also improves reliability and fault tolerance of the application.
+
+6. How did private EC2 instances install Nginx without a public IP?
+Private EC2 instances use a NAT Gateway to access the internet. The NAT Gateway allows outbound traffic but blocks inbound connections. 
+This enables instances to download packages like Nginx securely. As a result, instances remain private while still being able to install required software.
+
+7. Explain your VPC CIDR design.
+I used a /16 CIDR block for the VPC to provide a large IP address range. I divided it into smaller /24 subnets for both public and private layers. 
+This separation helps in organizing resources and improving security. It also allows easy scaling in the future if more subnets are needed.
+
+8. If you wanted to add HTTPS (port 443), what changes are needed?
+To enable HTTPS, we need to create an SSL certificate using AWS Certificate Manager. Then we add a listener on port 443 in the ALB and attach the certificate. 
+The ALB will handle encrypted traffic from users. Optionally, we can redirect HTTP traffic to HTTPS to enforce secure communication.
