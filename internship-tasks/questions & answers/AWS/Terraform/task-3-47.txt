@@ -1,0 +1,39 @@
+1. What is the difference between the ECS Task Execution Role and the Task Role?
+The Task Execution Role is used by Amazon ECS itself to perform infrastructure-level actions such as pulling container images from Amazon ECR and sending logs to Amazon CloudWatch Logs, 
+whereas the Task Role is used by the application code running inside the container at runtime. For example, if your Streamlit app needs to read a file from S3, 
+that permission is given to the Task Role, not the Execution Role. This separation ensures security by clearly dividing responsibilities between the platform and the application. 
+It prevents unnecessary permissions from being exposed to the container.
+
+2. Your task role grants s3:GetObject on a specific bucket. Why is this better than attaching AmazonS3ReadOnlyAccess?
+Granting s3:GetObject on a specific bucket follows the principle of least privilege, meaning the application can only access exactly what it needs and nothing more. 
+The managed policy AmazonS3ReadOnlyAccess allows read access to all S3 buckets in the account, which is overly broad and increases security risk. By restricting access to a single bucket, 
+you reduce the potential impact if the container is compromised. This approach aligns with production security best practices and is expected in real-world environments.
+
+3. Why do ECS Fargate tasks in private subnets need a NAT Gateway? What specific things need internet access?
+ECS Fargate tasks in private subnets do not have direct internet access, so a NAT Gateway is required to allow outbound connectivity. This is necessary for pulling container images 
+from registries like Docker Hub or Amazon ECR, sending logs to Amazon CloudWatch, and accessing services like SSM or S3 APIs. Without a NAT Gateway, the task would fail to start because 
+it cannot download the container image. Therefore, NAT enables secure outbound access while keeping the tasks private.
+
+4. The ECS security group allows port 8501 only from the ALB security group. Why not from 0.0.0.0/0?
+Allowing traffic only from the ALB security group ensures that the ECS service is not directly exposed to the internet, which improves security. If port 8501 were open to 0.0.0.0/0, 
+anyone could bypass the load balancer and access the container directly. By restricting access, all incoming traffic must go through the ALB, where routing and health checks are enforced. 
+This creates a controlled and secure traffic flow within the architecture.
+
+5. What is the ALB target group type for Fargate and why is it ip instead of instance?
+For Fargate, the target group type is set to ip because Fargate tasks do not run on EC2 instances but instead use AWS-managed infrastructure with their own network interfaces. 
+Each task gets its own IP address, so the ALB routes traffic directly to these IPs. In contrast, the instance type is used when targets are EC2 instances. Therefore, 
+ip is required for Fargate to correctly route traffic to the running containers.
+
+6. How does CloudWatch know the CPU/memory utilization of your ECS service? Where do these metrics come from?
+Amazon CloudWatch automatically collects metrics from ECS as part of AWS service integration. ECS agents and the Fargate platform report resource usage such as CPU and memory utilization 
+to CloudWatch under the AWS/ECS namespace. These metrics are aggregated at the service and cluster level, which allows you to create alarms based on them. This built-in integration 
+removes the need for manual metric collection.
+
+7. If the Streamlit container crashes, what happens? Does ECS restart it? How would you find out what went wrong?
+If the container crashes, ECS automatically attempts to restart it to maintain the desired task count defined in the service. This self-healing behavior ensures high availability of the application. 
+To debug the issue, you would check logs in Amazon CloudWatch Logs to see error messages from the container. You can also inspect ECS events and task status in the console to understand why the failure occurred.
+
+8. Compare this ECS deployment to the EC2 deployment in Task 3.44. What are the pros and cons of each approach?
+ECS Fargate abstracts server management, so you do not need to provision or maintain EC2 instances, making it easier to operate and scale. It provides better isolation and integrates well with modern container workflows, 
+but it can be more expensive for long-running workloads. EC2-based deployments give you more control over the infrastructure and can be cost-effective at scale, but require manual management of servers, scaling, and patching. 
+In production, Fargate is preferred for simplicity and faster deployments, while EC2 is used when deep customization or cost optimization is required.
