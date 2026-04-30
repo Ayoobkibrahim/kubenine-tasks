@@ -15,6 +15,7 @@ When a listener receives a request, it evaluates its routing rules (such as URL 
 
 
 *. ALB Module
+
 1. terraform-aws-modules/alb/aws — what it provides : 
 This official Terraform AWS module simplifies the creation and configuration of Application Load Balancers by bundling the necessary resources into a single package. It automatically provisions the ALB, target groups, listeners, and security group rules using best practices, saving you from writing verbose underlying resource blocks.
 
@@ -27,6 +28,7 @@ The module registry (hosted at registry.terraform.io) is the central repository 
 
 
 *. Private Subnet EC2 Design
+
 1. Why place instances in private subnets? :  
 Placing instances in private subnets is a fundamental security practice that isolates your application layer from the public internet. It ensures the servers do not have public IP addresses, making it impossible for malicious actors to initiate direct external connections to your infrastructure.
 
@@ -39,6 +41,7 @@ Even though the instances are isolated from the internet, the ALB and the instan
 
 
 *. Security Group Design
+
 1. ALB security group: accepts HTTP from the internet :  
 The ALB acts as the public-facing front door to your application. Its security group is configured to allow inbound HTTP (port 80) or HTTPS (port 443) traffic from anywhere (0.0.0.0/0) so that end-users can access the website.
 
@@ -51,6 +54,7 @@ This chaining technique guarantees that traffic must flow through the load balan
 
 
 *. Full Infrastructure Design
+
 1. Planning a VPC layout for a specific architecture :  
 A well-planned VPC separates resources into public and private tiers across multiple Availability Zones (AZs) to ensure high availability and security. Public subnets host edge routing resources like ALBs and NAT Gateways, while private subnets securely host the compute and database layers.
 
