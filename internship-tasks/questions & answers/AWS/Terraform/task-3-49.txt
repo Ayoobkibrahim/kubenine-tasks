@@ -27,5 +27,11 @@ During deployment, old tasks are gradually stopped while new tasks are starting.
 there may be a short downtime. Incoming requests during this window may fail or timeout. In production, a load balancer is used to avoid this issue.
 
 8. How would you modify the pipeline to deploy only on a Git tag?
-You can change the workflow trigger from push to main to push on tags. For example, use on: push: tags: - 'v*' in the workflow file. 
-This ensures deployments only happen when a version tag is created. It is commonly used for controlled production releases.
+Update the GitHub Actions trigger to run only on tag pushes instead of the main branch. For example, use:
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+This ensures the pipeline runs only when a version tag like v1.0.0 is created, enabling controlled and production-ready deployments.
