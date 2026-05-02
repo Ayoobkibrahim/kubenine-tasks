@@ -1,0 +1,31 @@
+1. What is OIDC and how does GitHub Actions use it to authenticate to AWS without storing credentials?
+OIDC (OpenID Connect) allows GitHub Actions to request a short-lived identity token during workflow execution. AWS verifies this token and allows the workflow to 
+assume an IAM role without needing access keys. This removes the need to store AWS credentials in GitHub secrets. It is more secure because credentials are temporary and automatically expire.
+
+2. The IAM role trust policy is scoped to repo and branch. What happens if a PR from a fork runs the workflow?
+The workflow from a forked repository cannot assume the IAM role. This is because the trust policy strictly allows only the main branch of the original repository. 
+Even if the workflow runs, AWS will deny the role assumption request. This prevents unauthorized deployments from external contributors.
+
+3. Why does ECS not pick up a new :latest image automatically without force deployment?
+ECS does not track image changes for the :latest tag automatically. It only uses the image defined in the current task definition. 
+When you run --force-new-deployment, ECS stops old tasks and starts new ones that pull the latest image. Without this, ECS keeps running the old container image.
+
+4. The IAM policy allows only ecs:UpdateService. What happens if someone tries ecs:DeleteService?
+The request will fail with an access denied error. This is because the IAM role does not have permission for ecs:DeleteService. 
+AWS strictly enforces least privilege access. This ensures that only allowed actions can be performed by the pipeline.
+
+5. What is the risk of using :latest tag in production?
+Using :latest makes deployments unpredictable because it does not track versions. If two developers push changes at the same time, 
+one image can overwrite the other. This makes debugging and rollback difficult. It is better to use versioned or commit-based tags in production.
+
+6. Why is storing Docker Hub credentials acceptable but not AWS credentials?
+Docker Hub credentials are only used to push images and have limited impact if exposed. AWS credentials can provide access to critical infrastructure and resources. 
+With OIDC, AWS credentials are not stored and are generated temporarily. This significantly reduces security risks.
+
+7. What happens to incoming requests during ECS force redeployment?
+During deployment, old tasks are gradually stopped while new tasks are starting. Since there is no load balancer in this setup, 
+there may be a short downtime. Incoming requests during this window may fail or timeout. In production, a load balancer is used to avoid this issue.
+
+8. How would you modify the pipeline to deploy only on a Git tag?
+You can change the workflow trigger from push to main to push on tags. For example, use on: push: tags: - 'v*' in the workflow file. 
+This ensures deployments only happen when a version tag is created. It is commonly used for controlled production releases.
