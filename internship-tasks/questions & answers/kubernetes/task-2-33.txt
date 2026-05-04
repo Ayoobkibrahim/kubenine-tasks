@@ -1,0 +1,39 @@
+1. What is a Kubernetes cluster?
+A Kubernetes cluster is a group of machines that work together to run containerized applications, consisting of a control plane and 
+multiple worker nodes. The control plane manages everything, while worker nodes actually run the applications inside containers.
+
+2. What is the difference between the control plane and worker nodes?
+The control plane is like the brain of Kubernetes that makes decisions and manages the cluster, while worker nodes are the machines 
+that execute those decisions by running application containers. In simple terms, control plane manages, and worker nodes do the actual work.
+
+3. What is the API Server and why does all traffic flow through it?
+The API Server is the main entry point of the Kubernetes cluster where all commands and communications are received and processed. 
+All traffic flows through it because it ensures security, validation, and proper coordination between all components.
+
+4. What does etcd store and what happens if it becomes unhealthy?
+etcd stores all the important data of the cluster such as configurations, states, and secrets, acting as the cluster’s database. 
+If etcd becomes unhealthy, the cluster cannot function properly because it loses access to its critical data and state information.
+
+5. What does the Scheduler decide?
+The Scheduler decides which worker node should run a new pod based on factors like available CPU, memory, and other constraints. 
+Its main goal is to efficiently distribute workloads across nodes.
+
+6. What does the Controller Manager do?
+The Controller Manager constantly checks the cluster’s current state and compares it with the desired state defined by the user. 
+If there is any difference, it automatically fixes it, like restarting failed pods or creating missing resources.
+
+7. What is the role of kubelet on a worker node?
+kubelet is an agent running on each worker node that communicates with the API Server to get instructions. 
+It ensures that containers are running correctly and keeps them healthy as defined in the pod specification.
+
+8. What is kube-proxy responsible for?
+kube-proxy handles networking on each worker node by managing rules that allow communication between services and pods. 
+It ensures traffic is routed to the correct pod based on the service configuration.
+
+9. What is the container runtime?
+The container runtime is the software that actually runs containers on a worker node, such as containerd. 
+It is responsible for pulling images and executing containers as instructed by Kubernetes.
+
+10. Why does high availability at the control plane level matter?
+High availability ensures that the control plane continues to work even if one component fails, preventing cluster downtime. 
+This is important for maintaining reliability and ensuring applications keep running without interruption.
