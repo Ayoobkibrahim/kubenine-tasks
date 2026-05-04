@@ -1,0 +1,30 @@
+1. Why was Kubernetes created?
+Kubernetes was created to solve the problem of managing containers at scale in production environments, 
+where running a few containers manually is easy but handling hundreds across multiple machines becomes complex; 
+it provides a system to automate deployment, scaling, networking, and recovery of containers so applications remain reliable and highly available.
+
+2. What problems appear when running containers manually in production without an orchestrator?
+Without an orchestrator, you face issues like deciding which machine runs which container, 
+handling failures manually when containers crash, difficulty in scaling applications during traffic spikes, 
+managing changing IP addresses, and ensuring proper communication between services, which makes the system unreliable and hard to maintain.
+
+3. What is container scheduling and why does it matter?
+Container scheduling is the process of automatically deciding where to run containers across available machines based on resource availability and requirements, 
+and it matters because it ensures efficient use of infrastructure, avoids overloading servers, and keeps applications running smoothly.
+
+4. Why is self-healing important in distributed systems?
+Self-healing is important because in distributed systems failures are normal, 
+and Kubernetes automatically detects failed containers or nodes and replaces or restarts them, 
+ensuring the application stays available without manual intervention.
+
+5. What is service discovery and why do dynamic container IPs make it necessary?
+Service discovery is a mechanism that allows services to find and communicate with each other using stable names instead of changing IP addresses, 
+which is necessary because containers can be restarted or moved, causing their IPs to change frequently.
+
+6. What is the difference between Docker and Kubernetes?
+Docker is used to build, package, and run containers, while Kubernetes is used to manage and orchestrate those containers at scale, 
+handling deployment, scaling, networking, and recovery across multiple machines.
+
+7. Why is Docker alone not sufficient for large-scale production workloads?
+Docker alone is not sufficient because it can only run containers on a single host and lacks features like automated scheduling, 
+scaling, load balancing, and self-healing, which are essential for running reliable and scalable applications in production environments.
