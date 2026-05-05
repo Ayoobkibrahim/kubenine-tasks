@@ -1,5 +1,5 @@
 1. What is a Kubernetes cluster?
-A Kubernetes cluster is a group of machines that work together to run containerized applications, consisting of a control plane and 
+A Kubernetes cluster is a group of machines (called nodes) that work together to run and manage containerized applications, consisting of a control plane and 
 multiple worker nodes. The control plane manages everything, while worker nodes actually run the applications inside containers.
 
 2. What is the difference between the control plane and worker nodes?
