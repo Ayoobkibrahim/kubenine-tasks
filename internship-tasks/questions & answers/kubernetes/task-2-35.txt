@@ -1,0 +1,31 @@
+1) What is a Pod in Kubernetes?
+A Pod is the smallest unit in Kubernetes that runs one or more containers together on a node. It provides shared networking, 
+storage, and lifecycle, allowing containers inside it to work closely as a single application unit.
+
+2) Why is a Pod considered the smallest deployable unit?
+A Pod is considered the smallest deployable unit because Kubernetes does not deploy containers directly; 
+it always deploys them inside a Pod. All higher-level resources like Deployments and Jobs ultimately create and manage Pods.
+
+3) What is the difference between a container and a Pod?
+A container is a lightweight unit that runs a single application, while a Pod is a wrapper that can contain one or more containers. 
+The Pod provides shared networking, IP address, and storage, allowing containers inside it to communicate easily.
+
+4) What are the different Pod lifecycle states?
+Pod lifecycle states include Pending, Running, Succeeded, Failed, and Unknown, which describe the current status of the Pod. 
+These states help us understand whether the Pod is being scheduled, actively running, or has completed or failed execution.
+
+5) Why is a standalone Pod not suitable for production?
+A standalone Pod is not suitable for production because it does not support self-healing, scaling, or automatic recovery if it fails. 
+In real-world scenarios, controllers like Deployments are used to ensure availability and manage multiple Pod instances.
+
+6) What happens if you delete a Pod created directly from a Pod manifest?
+If you delete a standalone Pod created from a manifest, it is permanently removed and not recreated automatically. 
+This happens because no controller is managing the desired state of that Pod.
+
+7) What does it mean that containers in the same Pod share networking?
+Containers in the same Pod share the same IP address and network namespace, which means they can communicate using localhost. 
+This makes communication fast and simple without needing external networking configurations.
+
+8) What is a sidecar container and why might it be used?
+A sidecar container is an additional container that runs alongside the main application container within the same Pod. 
+It is used to provide supporting features like logging, monitoring, or proxying without modifying the main application.
