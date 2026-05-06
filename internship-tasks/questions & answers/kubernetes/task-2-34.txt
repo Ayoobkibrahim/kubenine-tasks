@@ -1,0 +1,29 @@
+1. What is Amazon EKS and what does the managed control plane mean?
+Amazon EKS is a managed Kubernetes service by AWS that helps you run Kubernetes without installing and maintaining the control plane yourself. The managed control plane means AWS takes care of components like API server, etcd, and scheduler, ensuring high availability, scaling, and patching automatically.
+
+2. What does AWS manage in EKS and what do you still manage yourself?
+AWS manages the control plane, including Kubernetes API, etcd, scaling, and availability across AZs. You are responsible for worker nodes, applications, networking configuration, IAM roles, and cluster-level configurations.
+
+3. Why does an EKS cluster require subnets in at least two Availability Zones?
+EKS requires at least two AZs to ensure high availability and fault tolerance in case one AZ fails. This setup allows the control plane and workloads to continue running even during infrastructure issues in one zone.
+
+4. What is the difference between the cluster IAM role and the node IAM role?
+The cluster IAM role is used by the EKS control plane to interact with AWS services like load balancers and networking. The node IAM role is attached to EC2 instances and allows worker nodes to pull images, communicate with the cluster, and use AWS services.
+
+5. What is a managed node group and how does it differ from self-managed nodes?
+A managed node group is an AWS-managed set of EC2 instances where AWS handles provisioning, scaling, and updates. In self-managed nodes, you manually create and manage EC2 instances, including scaling and patching.
+
+6. What is the cluster API endpoint and why does its access mode matter?
+The cluster API endpoint is the URL through which kubectl communicates with the Kubernetes control plane. Its access mode (public/private) matters because it controls whether the cluster is accessible from the internet or only within a VPC, impacting security.
+
+7. What is kubeconfig and where is it stored?
+Kubeconfig is a configuration file that stores cluster connection details like API endpoint, credentials, and context. It is usually stored in ~/.kube/config on your local machine.
+
+8. What does aws eks update-kubeconfig do and why is it needed?
+This command updates your kubeconfig file with the EKS cluster details and IAM authentication configuration. It is needed so kubectl can securely connect to the cluster using AWS IAM credentials.
+
+9. What is the difference between kubectl get and kubectl describe?
+kubectl get is used to list resources in a simple and summarized format. kubectl describe provides detailed information about a specific resource, including events, status, and configuration.
+
+10. Why are worker nodes still EC2 instances in your account even with a managed node group?
+Even with managed node groups, AWS only manages the lifecycle of nodes but the actual compute runs on EC2 instances in your account. This gives you control over instance types, networking, and cost while AWS handles automation.
