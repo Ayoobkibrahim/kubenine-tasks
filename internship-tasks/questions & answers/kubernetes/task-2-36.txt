@@ -1,0 +1,39 @@
+1. What problem does a ReplicaSet solve?
+A ReplicaSet solves the problem of maintaining application availability by ensuring a specific number of Pods are always running. 
+If a Pod crashes, fails, or gets deleted, the ReplicaSet automatically creates a new Pod to maintain the desired state.
+
+2. What is the difference between a Pod and a ReplicaSet?
+A Pod is the smallest deployable unit in Kubernetes that runs containers, while a ReplicaSet is a controller that manages multiple Pods. 
+The ReplicaSet ensures the required number of identical Pods are always running and replaces failed Pods automatically.
+
+3. What is the role of a Deployment?
+A Deployment is a higher-level Kubernetes object that manages ReplicaSets and provides advanced features like scaling, rolling updates, 
+and rollback. It helps deploy applications in a reliable and declarative way suitable for production environments.
+
+4. Why are Deployments preferred over creating Pods directly?
+Deployments are preferred because they provide self-healing, automatic scaling, rolling updates, and rollback functionality, 
+which standalone Pods do not support. If a directly created Pod is deleted, Kubernetes will not recreate it automatically.
+
+5. What happens when one Pod in a Deployment is deleted?
+When one Pod in a Deployment is deleted, the ReplicaSet immediately detects that the number of running Pods is lower than the desired count. 
+Kubernetes automatically creates a replacement Pod to maintain application availability.
+
+6. What is a rolling update and why does it matter for production?
+A rolling update is a deployment strategy where old Pods are gradually replaced with new Pods one by one instead of stopping the entire application at once. 
+This is important in production because it allows application updates with little or no downtime for users.
+
+7. What is a rollback and when would you use it?
+A rollback is the process of restoring the previous stable version of an application after a failed or problematic update. 
+It is used when the newly deployed version causes issues such as crashes, bugs, or application instability.
+
+8. How does Kubernetes achieve zero-downtime updates using Deployments?
+Kubernetes achieves zero-downtime updates by creating new Pods and ensuring they are healthy before terminating old Pods. 
+This guarantees that some application instances remain available during the update process.
+
+9. Why is YAML used to define Kubernetes resources?
+YAML is used because it provides a simple, human-readable, and declarative way to define Kubernetes resources and configurations. 
+It also supports version control, reusability, and easy infrastructure management.
+
+10. What are the minimum required fields in a Deployment manifest?
+The minimum required fields in a Deployment manifest are apiVersion, kind, metadata, and spec. Inside the spec section, 
+important fields include replicas, selector, and the Pod template definition.
