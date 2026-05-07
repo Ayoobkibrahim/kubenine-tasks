@@ -1,0 +1,39 @@
+1. What is a Kubernetes Ingress?
+A Kubernetes Ingress is a resource used to manage external HTTP and HTTPS traffic inside a Kubernetes cluster. 
+It allows users to access applications using domain names or URL paths and routes traffic to the correct Kubernetes Service.
+
+2. Why does an Ingress resource do nothing by itself?
+An Ingress resource only contains routing rules and configuration information, but it cannot process traffic on its own. 
+An Ingress Controller is required to read those rules and actually route incoming requests to the correct Services.
+
+3. What is an Ingress Controller?
+An Ingress Controller is the actual software component that watches Ingress resources and handles traffic routing inside the cluster. 
+It receives client requests, checks the Ingress rules, and forwards traffic to the appropriate Kubernetes Services and Pods.
+
+4. Why did NGINX Ingress become so popular in Kubernetes?
+NGINX Ingress became popular because NGINX was already widely trusted as a fast and reliable web server and reverse proxy. 
+It provided a flexible, cloud-independent, and easy way to manage HTTP routing for Kubernetes applications.
+
+5. Is the Kubernetes Ingress API itself deprecated?
+No, the Kubernetes Ingress API is not deprecated and is still actively used in Kubernetes. 
+Only some controller implementations in the ecosystem are changing, but the Ingress resource itself still exists.
+
+6. What exactly is being retired in March 2026?
+The community-maintained ingress-nginx controller project is being retired in March 2026. 
+This does not affect the Kubernetes Ingress API itself, which will continue to work with other Ingress Controllers.
+
+7. What is the difference between the Ingress API and the ingress-nginx controller?
+The Ingress API is a Kubernetes resource where routing rules are defined, while the ingress-nginx controller is the actual software that reads 
+those rules and performs the real traffic routing. In simple terms, the Ingress API defines the rules and the controller executes them.
+
+8. Why does an Ingress route to a Service instead of directly to Pods?
+Ingress routes traffic to Services because Pods are temporary and their IP addresses can change whenever they restart. 
+Services provide stable networking, service discovery, and load balancing, making them a reliable target for Ingress routing.
+
+9. What traffic management does Ingress provide that Services alone cannot?
+Ingress provides advanced Layer 7 HTTP and HTTPS routing features such as path-based routing, host-based routing, and centralized external access. 
+Services mainly provide basic Layer 4 networking and internal load balancing but cannot perform advanced HTTP routing.
+
+10. Why is it useful to learn NGINX Ingress before learning the AWS Load Balancer Controller?
+Learning NGINX Ingress helps understand important Kubernetes networking concepts like Ingress rules, controllers, and HTTP traffic flow. 
+These same concepts are also used in the AWS Load Balancer Controller, so understanding NGINX Ingress makes AWS-native ingress solutions easier to learn.
