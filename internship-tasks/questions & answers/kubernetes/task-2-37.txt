@@ -1,0 +1,40 @@
+1. Why do Kubernetes Services exist?
+Kubernetes Services exist to provide a stable network identity for Pods inside the cluster. Since Pod IP addresses change whenever Pods 
+restart, fail, or scale, Services provide a stable IP and DNS name so applications can communicate reliably without depending on temporary Pod IPs.
+
+2. Why should applications not connect directly to Pod IPs?
+Applications should not connect directly to Pod IPs because Pod IPs are ephemeral and can change when Pods are recreated or replaced. 
+If applications use direct Pod IPs, communication may fail whenever the Pod changes, making the system unstable.
+
+3. What is the difference between ClusterIP, NodePort, and LoadBalancer?
+ClusterIP exposes the application only inside the Kubernetes cluster and is mainly used for internal communication between services. 
+NodePort exposes the application externally through a worker node port for testing or simple access, 
+LoadBalancer creates an external cloud load balancer for public internet access in production environments.
+
+4. When should you use ClusterIP?
+ClusterIP should be used when applications need to communicate only inside the Kubernetes cluster. It is commonly used for 
+backend services, internal APIs, and database communication where external access is not required.
+
+5. When should you use NodePort?
+NodePort should be used when you need simple external access to an application for testing or development purposes. 
+It exposes the application through the worker node IP address and a fixed port number.
+
+6. When should you use LoadBalancer?
+LoadBalancer should be used in production environments where applications must be accessible publicly over the internet. 
+In cloud platforms like Amazon Web Services EKS, Kubernetes automatically provisions an external load balancer and assigns a public IP or DNS name.
+
+7. How does a Service know which Pods to send traffic to?
+A Service uses selectors to identify Pods based on labels attached to them. Kubernetes automatically routes traffic to all Pods 
+whose labels match the selector defined in the Service configuration.
+
+8. What is the role of labels and selectors in Services?
+Labels are key-value pairs attached to Kubernetes resources, and selectors are used to find resources with matching labels. 
+Services use selectors to dynamically discover the correct Pods and route traffic to them automatically.
+
+9. How does service discovery work inside Kubernetes?
+Kubernetes automatically creates DNS records for every Service using CoreDNS. Pods inside the cluster can communicate with 
+Services using the Service name instead of using Pod IP addresses, making communication stable and reliable.
+
+10. Why is DNS important in Kubernetes networking?
+DNS is important because it allows applications to communicate using stable and human-readable Service names instead of changing IP addresses. 
+This ensures reliable communication even when Pods are recreated, scaled, or replaced dynamically.
