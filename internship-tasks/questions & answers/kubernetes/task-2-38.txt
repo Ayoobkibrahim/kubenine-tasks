@@ -1,0 +1,39 @@
+1. What is a ConfigMap?
+A ConfigMap is a Kubernetes object used to store non-sensitive configuration data such as API URLs, environment names, ports, and feature flags 
+outside the container image. It helps keep applications flexible and allows the same image to be reused across different environments without rebuilding.
+
+2. What is a Secret?
+A Secret is a Kubernetes object used to store sensitive information like passwords, API keys, tokens, and certificates securely outside the 
+application code and container image. It helps improve security and makes secret management easier in production environments.
+
+3. Why should configuration not be stored in container images?
+Configuration should not be stored inside container images because every configuration change would require rebuilding and redeploying the image. 
+Externalizing configuration makes deployments faster, easier to manage, and allows the same image to work in development, testing, and production environments.
+
+4. Why should secrets not be hardcoded in application code?
+Secrets should not be hardcoded because anyone with access to the source code or container image can view sensitive information like passwords and API keys. 
+Hardcoding also makes secret rotation difficult and increases the risk of security breaches.
+
+5. What is the difference between base64 encoding and encryption?
+Base64 encoding only converts data into another readable format and can easily be decoded back to the original value without any security protection. 
+Encryption secures the data using cryptographic algorithms and requires a secret key to decrypt and access the original information.
+
+6. What are the two common ways to consume a ConfigMap in a Pod?
+A ConfigMap can be consumed inside a Pod either as environment variables or as mounted files inside the container filesystem. 
+Environment variables are commonly used for simple configuration values, while mounted files are useful for larger configuration files.
+
+7. What are the two common ways to consume a Secret in a Pod?
+A Secret can be injected into a Pod as environment variables or mounted as files inside the container. Mounted files are commonly used for 
+certificates, SSH keys, and other sensitive files that applications read directly from disk.
+
+8. When would you use environment variable injection vs mounted files?
+Environment variable injection is best for small and simple values like URLs, usernames, or application modes that applications can read easily during startup. 
+Mounted files are preferred when working with certificates, private keys, or large configuration files that applications expect as physical files.
+
+9. Why is externalised configuration important in Kubernetes?
+Externalised configuration is important because it separates application code from configuration data, making applications more portable and reusable across environments. 
+It also allows configuration updates without rebuilding container images, which improves deployment speed and operational efficiency.
+
+10. What is the security risk of treating Secrets the same as ConfigMaps?
+Treating Secrets like ConfigMaps is risky because ConfigMaps are not designed to securely handle sensitive data and can expose passwords or API keys to unauthorized users. 
+Secrets provide better security practices and should always be used for confidential information in Kubernetes environments.
