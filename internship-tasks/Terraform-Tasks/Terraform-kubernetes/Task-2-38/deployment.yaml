@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-2-38-deployment
+  namespace: ayoob-k-ibrahim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: task-2-38-app
+  template:
+    metadata:
+      labels:
+        app: task-2-38-app
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+
+        env:
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: task-2-38-config
+              key: APP_ENV
+
+        - name: API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: task-2-38-config
+              key: API_URL
+
+        volumeMounts:
+        - name: secret-volume
+          mountPath: "/etc/secret-data"
+          readOnly: true
+
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: task-2-38-secret
