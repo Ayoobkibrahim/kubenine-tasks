@@ -1,0 +1,39 @@
+1. What is the AWS Load Balancer Controller?
+The AWS Load Balancer Controller is a Kubernetes controller used in EKS to automatically create and manage AWS load balancers like ALB and NLB. 
+It watches Kubernetes Ingress and Service resources and connects Kubernetes networking with AWS load balancing services.
+
+2. Why is it needed on EKS rather than using NGINX Ingress?
+It is needed because it provides direct integration with AWS services such as ALB, IAM, and target groups. 
+Unlike NGINX Ingress which runs inside the cluster, AWS Load Balancer Controller uses AWS-native load balancers managed directly in AWS.
+
+3. What AWS resources does the controller create when an ALB-backed Ingress is applied?
+When an ALB-backed Ingress is applied, the controller automatically creates resources like an Application Load Balancer, listeners, listener rules, 
+target groups, and related security group configurations in AWS. These resources are used to route external traffic to Kubernetes applications.
+
+4. Why must the Ingress route to a Service instead of directly to Pods?
+Ingress must route traffic to a Service because Pods are temporary and their IP addresses can change at any time. 
+A Service provides a stable endpoint and forwards traffic to the correct Pods even if Pods are recreated.
+
+5. Why are at least two subnets in different AZs required for ALB?
+AWS requires ALBs to use at least two subnets in different Availability Zones for high availability and fault tolerance. 
+This ensures the application remains accessible even if one Availability Zone fails.
+
+6. Why does the controller need AWS permissions and how does it get them?
+The controller needs AWS permissions to create and manage AWS resources such as ALBs, target groups, and security groups. 
+These permissions are usually provided using IAM Roles for Service Accounts (IRSA).
+
+7. What is the difference between internet-facing and internal ALB?
+An internet-facing ALB accepts traffic from the public internet and is used for public applications. 
+An internal ALB only accepts private traffic from inside the VPC and is used for internal services.
+
+8. Why is ALB appropriate for HTTP/HTTPS application traffic on EKS?
+ALB is appropriate because it is a Layer 7 load balancer designed specifically for HTTP and HTTPS traffic. 
+It supports advanced features like path-based routing, host-based routing, SSL termination, and health checks.
+
+9. What would happen if the controller is not installed but you apply the Ingress?
+The Ingress resource will be created inside Kubernetes, but no ALB will be created in AWS. As a result, 
+external traffic routing will not work and the application will not be accessible from outside the cluster.
+
+10. How does this approach differ from the NGINX Ingress approach in Task 2.39?
+NGINX Ingress uses an NGINX reverse proxy running inside the Kubernetes cluster to handle traffic routing. AWS Load Balancer Controller, 
+on the other hand, creates and manages AWS Application Load Balancers outside the cluster using AWS infrastructure.
