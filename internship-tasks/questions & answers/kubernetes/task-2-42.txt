@@ -1,0 +1,41 @@
+1. Why do containers lose data by default?
+Containers lose data by default because they use an ephemeral filesystem, which means the data only exists while the container is running. 
+When a container or Pod is deleted, restarted, or recreated, the filesystem is also recreated, so any locally stored data is lost unless persistent storage is attached.
+
+2. What is a Kubernetes Volume?
+A Kubernetes Volume is storage attached to a Pod that allows containers to read and write data. Unlike the container filesystem, 
+a Volume can survive container restarts inside the same Pod and is commonly used for sharing or persisting data.
+
+3. What is a PersistentVolume?
+A PersistentVolume, or PV, is a cluster-level storage resource managed by Kubernetes that represents actual physical or cloud-based storage. 
+It exists independently from Pods and can be used to provide persistent data storage for applications.
+
+4. What is a PersistentVolumeClaim?
+A PersistentVolumeClaim, or PVC, is a request for storage made by an application or workload in Kubernetes. 
+Instead of directly using storage infrastructure details, the application requests storage size and access mode, 
+and Kubernetes automatically connects it to a suitable PersistentVolume.
+
+5. What is the difference between a PV and a PVC?
+A PersistentVolume is the actual storage resource available in the cluster, while a PersistentVolumeClaim is a request to use that storage. 
+The PV provides the storage capacity, and the PVC consumes or claims that storage for an application.
+
+6. What is a StorageClass?
+A StorageClass is a Kubernetes resource that defines how storage should be dynamically created for workloads. 
+It contains details such as the storage provisioner, reclaim policy, and volume binding behavior, 
+allowing Kubernetes to automatically provision storage when needed.
+
+7. What is dynamic provisioning?
+Dynamic provisioning is the process where Kubernetes automatically creates a PersistentVolume when a PersistentVolumeClaim is created. 
+Instead of manually creating storage resources, Kubernetes uses the StorageClass configuration to provision storage automatically.
+
+8. Why is dynamic provisioning better than manually creating PVs for every workload?
+Dynamic provisioning is better because it automates storage creation and reduces manual administrative work. It improves scalability, 
+speeds up deployments, and allows developers to request storage without needing knowledge about the underlying infrastructure.
+
+9. What kind of applications usually need persistent storage?
+Applications that store important or long-term data usually need persistent storage, such as databases, file upload services, message queues, 
+logging systems, and search engines. These applications require their data to remain available even if Pods restart or fail.
+
+10. Why are stateful workloads harder to manage than stateless ones in Kubernetes?
+Stateful workloads are harder to manage because Kubernetes must ensure data persistence, stable identity, recovery, backups, and storage consistency. 
+Unlike stateless applications, stateful applications cannot simply replace Pods without carefully managing the attached data and storage resources.
