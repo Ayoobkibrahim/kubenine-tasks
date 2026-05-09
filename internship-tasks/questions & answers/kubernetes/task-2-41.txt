@@ -1,0 +1,41 @@
+1. What problem does TLS solve?
+TLS protects data while it travels between a client and server by encrypting the communication. It prevents attackers from reading, stealing, 
+or modifying sensitive information such as passwords, API requests, and personal data during transmission, which makes HTTPS communication secure and trusted.
+
+2. What is cert-manager?
+cert-manager is a Kubernetes-native tool used to automate TLS certificate management inside Kubernetes clusters. It automatically handles 
+certificate issuance, renewal, and storage, reducing manual work and helping applications securely use HTTPS.
+
+3. What is the difference between an Issuer and a ClusterIssuer?
+An Issuer is namespace-scoped, which means it can issue certificates only within a single namespace, while a ClusterIssuer is 
+cluster-scoped and can issue certificates across all namespaces in the cluster. Issuers are commonly used for isolated applications, 
+whereas ClusterIssuers are useful for shared or organization-wide certificate management.
+
+4. What is a Certificate resource in cert-manager?
+A Certificate resource defines the desired TLS certificate configuration such as DNS names, the issuer to use, 
+and the Kubernetes Secret where the certificate should be stored. cert-manager watches this resource and automatically 
+generates and renews the certificate when required.
+
+5. What gets created after a Certificate is issued?
+After a Certificate is successfully issued, cert-manager automatically creates a Kubernetes TLS Secret. This Secret contains the 
+public certificate (tls.crt) and the private key (tls.key) that are later used by applications or ingress controllers for HTTPS communication.
+
+6. How does an Ingress use a certificate in Kubernetes?
+An Ingress uses a certificate by referencing a TLS Secret inside its TLS configuration section. The ingress controller loads the 
+certificate and private key from the Secret and uses them to terminate HTTPS traffic securely before forwarding requests to backend services.
+
+7. Why is a Kubernetes Secret involved in TLS termination?
+A Kubernetes Secret is used because TLS requires sensitive information such as private keys, which should not be stored in plain text inside 
+application manifests. Secrets provide a secure and centralized way to store and manage TLS certificates and private keys within Kubernetes.
+
+8. Why is cert-manager useful compared to managing certificates manually?
+cert-manager automates the complete certificate lifecycle including issuance, renewal, and secret updates, which reduces manual effort and human errors. 
+It also helps avoid production outages caused by expired certificates and integrates directly with Kubernetes resources like Ingress.
+
+9. When would you choose an Issuer over a ClusterIssuer?
+You would choose an Issuer when certificate management should remain limited to a single namespace or application environment. 
+This approach is useful for team isolation, namespace-level security, and situations where different namespaces require different certificate authorities.
+
+10. What is the relationship between the Ingress, TLS Secret, and cert-manager?
+cert-manager creates and manages the TLS Secret by generating certificates from a Certificate resource using an Issuer or ClusterIssuer. 
+The Ingress then references that TLS Secret to provide secure HTTPS access for external users connecting to the application.
