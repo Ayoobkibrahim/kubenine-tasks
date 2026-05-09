@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-2-40-deployment
+  namespace: ayoob-k-ibrahim
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: task-2-40
+
+  template:
+    metadata:
+      labels:
+        app: task-2-40
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80

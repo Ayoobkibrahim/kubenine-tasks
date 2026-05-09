@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: task-2-41-cert
+  namespace: ayoob-k-ibrahim
+spec:
+  secretName: task-2-41-tls-secret
+
+  issuerRef:
+    name: task-2-41-issuer
+    kind: Issuer
+
+  dnsNames:
+    - task-2-41.212-2-252-148.nip.io

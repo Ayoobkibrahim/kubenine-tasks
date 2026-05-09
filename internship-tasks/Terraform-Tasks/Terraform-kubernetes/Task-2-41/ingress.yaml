@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: task-2-40-ingress
+  namespace: ayoob-k-ibrahim
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - task-2-41.212-2-252-148.nip.io
+      secretName: task-2-41-tls-secret
+  rules:
+    - host: task-2-41.212-2-252-148.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: task-2-40-service
+                port:
+                  number: 80
