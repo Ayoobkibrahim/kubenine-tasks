@@ -1,39 +1,40 @@
 1. What is the difference between a CPU/memory request and a CPU/memory limit?
-
-A CPU or memory request is the minimum amount of resources Kubernetes guarantees to a container and uses during scheduling, while a limit is the maximum amount of resources the container is allowed to consume at runtime. Requests help the scheduler decide where to place the Pod, and limits protect the node from excessive resource usage.
+A CPU or memory request is the minimum amount of resources Kubernetes guarantees to a container and uses during scheduling, while a limit is the maximum amount of 
+resources the container is allowed to consume at runtime. Requests help the scheduler decide where to place the Pod, and limits protect the node from excessive resource usage.
 
 2. Why does Kubernetes use requests during scheduling but not limits?
-
-Kubernetes uses requests during scheduling because requests represent the guaranteed resources a Pod actually needs to run safely on a node. Limits are not used for scheduling because containers do not continuously consume their maximum allowed resources, and using limits would waste cluster capacity.
+Kubernetes uses requests during scheduling because requests represent the guaranteed resources a Pod actually needs to run safely on a node. 
+Limits are not used for scheduling because containers do not continuously consume their maximum allowed resources, and using limits would waste cluster capacity.
 
 3. What happens if a container exceeds its memory limit?
-
-If a container exceeds its memory limit, the Linux kernel terminates the container to prevent the node from running out of memory. Kubernetes reports this as an OOMKilled event, and the container may restart depending on the restart policy.
+If a container exceeds its memory limit, the Linux kernel terminates the container to prevent the node from running out of memory. 
+Kubernetes reports this as an OOMKilled event, and the container may restart depending on the restart policy.
 
 4. What is CPU throttling and how does it differ from OOMKill?
-
-CPU throttling happens when a container tries to use more CPU than its defined CPU limit, causing Kubernetes to slow the container down instead of killing it. OOMKill is different because it occurs when a container exceeds its memory limit, which results in the container being terminated immediately.
+CPU throttling happens when a container tries to use more CPU than its defined CPU limit, causing Kubernetes to slow the container down instead of killing it. 
+OOMKill is different because it occurs when a container exceeds its memory limit, which results in the container being terminated immediately.
 
 5. Why can a Pod remain in Pending state because of resource settings?
-
-A Pod can remain in Pending state when its CPU or memory requests are higher than the allocatable resources available on any node in the cluster. In this situation, the scheduler cannot find a suitable node to place the Pod, so scheduling fails.
+A Pod can remain in Pending state when its CPU or memory requests are higher than the allocatable resources available on any node in the cluster. 
+In this situation, the scheduler cannot find a suitable node to place the Pod, so scheduling fails.
 
 6. What does the Kubernetes scheduler do?
-
-The Kubernetes scheduler is responsible for assigning Pods to suitable nodes based on resource availability and scheduling rules. It checks Pod requests, node allocatable resources, taints, tolerations, affinity rules, and other constraints before making placement decisions.
+The Kubernetes scheduler is responsible for assigning Pods to suitable nodes based on resource availability and scheduling rules. 
+It checks Pod requests, node allocatable resources, taints, tolerations, affinity rules, and other constraints before making placement decisions.
 
 7. What is the difference between Guaranteed, Burstable, and BestEffort Pods?
-
-Guaranteed Pods have equal CPU and memory requests and limits, giving them the highest scheduling and eviction priority. Burstable Pods have requests and limits defined but with different values, while BestEffort Pods have no requests or limits defined and receive the lowest priority during resource pressure.
+Guaranteed Pods have equal CPU and memory requests and limits, giving them the highest scheduling and eviction priority. 
+Burstable Pods have requests and limits defined but with different values, while BestEffort Pods have no requests or limits 
+defined and receive the lowest priority during resource pressure.
 
 8. Why do missing resource values cause problems in a shared cluster?
-
-Missing requests and limits make it difficult for Kubernetes to properly schedule and control workloads in a shared environment. Without resource boundaries, one container can consume excessive CPU or memory and negatively impact other applications running on the same node.
+Missing requests and limits make it difficult for Kubernetes to properly schedule and control workloads in a shared environment. 
+Without resource boundaries, one container can consume excessive CPU or memory and negatively impact other applications running on the same node.
 
 9. Why is it risky to deploy workloads without requests and limits?
-
-Deploying workloads without requests and limits is risky because Kubernetes cannot accurately reserve resources or prevent containers from overconsuming node resources. This can lead to unstable applications, resource starvation, node crashes, and unpredictable cluster behavior.
+Deploying workloads without requests and limits is risky because Kubernetes cannot accurately reserve resources or prevent containers from overconsuming node resources. 
+This can lead to unstable applications, resource starvation, node crashes, and unpredictable cluster behavior.
 
 10. What is the difference between a scheduling failure and a runtime resource failure?
-
-A scheduling failure occurs before a Pod starts when Kubernetes cannot find a node with enough available resources to satisfy the Pod requests. A runtime resource failure happens after the Pod is running, such as CPU throttling or OOMKill caused by exceeding resource limits.
+A scheduling failure occurs before a Pod starts when Kubernetes cannot find a node with enough available resources to satisfy the Pod requests. 
+A runtime resource failure happens after the Pod is running, such as CPU throttling or OOMKill caused by exceeding resource limits.

@@ -1,0 +1,39 @@
+1. What is a liveness probe?
+A liveness probe is used by Kubernetes to check whether a container is still healthy and running properly. If the probe fails continuously, 
+Kubernetes assumes the application is broken or stuck and automatically restarts the container to recover it.
+
+2. What is a readiness probe?
+A readiness probe checks whether an application is ready to receive user traffic. If the readiness probe fails, 
+the Pod remains running but Kubernetes removes it from the Service endpoints so traffic is not sent to that Pod until it becomes ready again.
+
+3. What is a startup probe?
+A startup probe is used for slow-starting applications that need extra time during startup. It prevents Kubernetes from running 
+liveness and readiness checks too early, which helps avoid unnecessary restarts while the application is still initialising.
+
+4. What is the difference between liveness and readiness?
+The main difference is that a liveness probe checks whether the container should be restarted, while a readiness probe checks whether 
+the Pod should receive traffic. Liveness focuses on application health, whereas readiness focuses on traffic availability.
+
+5. What happens when a readiness probe fails?
+When a readiness probe fails, Kubernetes marks the Pod as NotReady and removes it from the Service endpoints. 
+The container continues running normally, but user traffic is temporarily stopped from reaching that Pod.
+
+6. What happens when a liveness probe fails?
+When a liveness probe fails repeatedly, Kubernetes considers the container unhealthy and automatically restarts it. 
+This helps recover applications that are frozen, crashed, or no longer responding properly.
+
+7. Why is a startup probe useful for slow-starting applications?
+Some applications take a long time to fully start, especially large Java or database-based applications. 
+A startup probe gives the application enough startup time and prevents Kubernetes from restarting it before it becomes healthy.
+
+8. What is Kubernetes self-healing?
+Kubernetes self-healing is the ability of Kubernetes to automatically recover failed applications without manual intervention. 
+It can restart unhealthy containers, recreate failed Pods, and maintain the desired number of application replicas automatically.
+
+9. Why does deleting a Pod in a Deployment not permanently remove the application?
+A Deployment uses a ReplicaSet to maintain the desired number of running Pods. If a Pod is deleted manually, 
+the ReplicaSet automatically creates a new Pod so the application continues running without interruption.
+
+10. How can badly configured probes cause production outages?
+If probes are configured incorrectly with very short timeouts or wrong paths, healthy applications may be marked as unhealthy. 
+This can cause continuous container restarts or removal of all Pods from Service endpoints, resulting in application downtime and production outages.
