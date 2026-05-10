@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-2-45-app
+  namespace: ayoob-k-ibrahim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: task-2-45-app
+
+  template:
+    metadata:
+      labels:
+        app: task-2-45-app
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+
+        ports:
+        - containerPort: 80
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+
+          limits:
+            cpu: 500m
+            memory: 256Mi
