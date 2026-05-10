@@ -1,0 +1,39 @@
+1. What is a Kubernetes namespace?
+A Kubernetes namespace is a logical separation mechanism used to organize and isolate resources inside a cluster. It allows multiple teams, 
+applications, or environments like development and production to use the same cluster without resource conflicts.
+
+2. What is the difference between a Role and a ClusterRole?
+A Role provides permissions only within a specific namespace and is used for namespace-scoped resources such as Pods and Services. 
+A ClusterRole provides permissions across the entire cluster and can also manage cluster-scoped resources like Nodes, PersistentVolumes, and StorageClasses.
+
+3. What is the difference between a RoleBinding and a ClusterRoleBinding?
+A RoleBinding grants permissions inside a single namespace by connecting a user, group, or ServiceAccount to a Role or ClusterRole. 
+A ClusterRoleBinding grants permissions across the entire Kubernetes cluster and applies access to all namespaces.
+
+4. What is a ServiceAccount?
+A ServiceAccount is an identity used by Pods and applications running inside Kubernetes to communicate securely with the Kubernetes API server. 
+It works together with RBAC so workloads receive only the permissions required to perform their tasks.
+
+5. Why should workloads use least-privilege permissions?
+Workloads should use least-privilege permissions because it improves cluster security by giving applications only the minimum access they need. 
+This reduces the impact of security breaches, accidental changes, or compromised containers.
+
+6. Why is cluster-admin dangerous?
+The cluster-admin role is dangerous because it provides unrestricted access to the entire Kubernetes cluster, including workloads, nodes, 
+secrets, and RBAC configurations. If a cluster-admin account is compromised, an attacker can fully control or damage the cluster.
+
+7. What does CrashLoopBackOff usually mean?
+CrashLoopBackOff usually means a container repeatedly starts, crashes, and Kubernetes continuously tries to restart it. 
+This commonly happens because of application failures, invalid commands, missing files, or incorrect environment configurations.
+
+8. What does ImagePullBackOff usually mean?
+ImagePullBackOff means Kubernetes is unable to pull the container image from the registry. 
+This usually occurs because of an incorrect image name, invalid tag, missing image, authentication problem, or network issue.
+
+9. What does a Pending Pod usually indicate?
+A Pending Pod usually indicates that Kubernetes cannot schedule the Pod onto any available node. 
+This often happens because of insufficient CPU or memory resources, node taints, affinity rules, or storage-related issues.
+
+10. Why is kubectl describe pod one of the first commands you should run when debugging?
+kubectl describe pod is one of the first commands used during debugging because it provides detailed information about Pod events, 
+scheduling issues, container states, restart reasons, and image pull failures. It helps quickly identify the root cause of most Kubernetes Pod problems.
