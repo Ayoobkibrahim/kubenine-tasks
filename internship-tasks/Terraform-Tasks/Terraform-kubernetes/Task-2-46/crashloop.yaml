@@ -1,0 +1,11 @@
+# crashloop.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: task-2-46-crashloop
+  namespace: ayoob-k-ibrahim
+spec:
+  containers:
+  - name: crash
+    image: busybox
+    command: ["sh", "-c", "exit 1"]
