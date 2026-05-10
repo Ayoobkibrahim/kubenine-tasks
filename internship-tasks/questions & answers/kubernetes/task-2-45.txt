@@ -1,0 +1,40 @@
+1. What problem does HPA solve?
+HPA solves the problem of fixed replica counts in Kubernetes applications. Traffic and workload are not always constant, so keeping a fixed number of 
+Pods can either overload the application during high traffic or waste resources during low traffic. HPA automatically adjusts the number of Pod replicas 
+based on workload metrics like CPU or memory usage, helping maintain both performance and cost efficiency.
+
+2. What does HPA scale in Kubernetes?
+HPA scales the number of Pod replicas for Kubernetes workloads such as Deployments, ReplicaSets, or StatefulSets. Instead of manually changing the replica count, 
+HPA continuously monitors application metrics and automatically increases or decreases the number of running Pods based on the current workload requirements.
+
+3. Why does HPA need metrics?
+HPA needs metrics because it makes scaling decisions based on the actual resource usage of the application. Metrics like CPU or memory usage help Kubernetes 
+understand whether the application is under heavy load or running normally. Without metrics, HPA cannot determine when scaling actions are required.
+
+4. Why are CPU requests required for CPU-based autoscaling?
+CPU requests are required because HPA calculates CPU utilization as a percentage of the requested CPU value configured for the container. If CPU requests are not defined, 
+Kubernetes cannot calculate the utilization percentage correctly, so HPA cannot make proper scaling decisions based on CPU usage.
+
+5. What is the difference between manual scaling and automatic scaling?
+Manual scaling means an administrator changes the number of replicas manually using commands like kubectl scale whenever traffic changes. 
+Automatic scaling uses HPA to continuously monitor metrics and automatically adjust the replica count without human intervention, making the application more responsive to workload changes.
+
+6. What happens when CPU usage rises above the target?
+When CPU usage rises above the configured target utilization, HPA automatically increases the number of Pod replicas. This distributes the workload across more Pods, 
+reduces CPU pressure on individual containers, and helps maintain application performance and availability during high traffic.
+
+7. Why does HPA not always scale down immediately?
+HPA does not scale down immediately because Kubernetes uses a cooldown period to avoid rapid scaling fluctuations, also called thrashing. 
+Temporary drops in traffic should not instantly remove Pods because traffic may increase again shortly after, so delayed scale-down improves application stability.
+
+8. When can HPA improve application reliability?
+HPA improves application reliability during sudden or unpredictable traffic spikes by automatically adding more Pods when resource usage increases. 
+This helps the application remain responsive, reduces the chance of failures due to overload, and improves overall availability for users.
+
+9. When can HPA hurt an application?
+HPA can hurt an application when resource requests are configured incorrectly, metrics are inaccurate, or the application takes too long to start new Pods. 
+Poor autoscaling behavior can lead to unstable performance, delayed scaling responses, or unnecessary resource consumption.
+
+10. Why is choosing the right metric important for autoscaling?
+Choosing the right metric is important because HPA makes scaling decisions entirely based on metric values. If the selected metric does not accurately represent application workload, 
+Kubernetes may scale too early, too late, or unnecessarily, which can negatively affect both performance and infrastructure cost.
