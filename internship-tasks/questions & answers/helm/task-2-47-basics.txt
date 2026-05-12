@@ -1,0 +1,39 @@
+1. What problem does Helm solve that raw Kubernetes YAML cannot?
+Helm helps manage large numbers of Kubernetes YAML files easily and avoids copy-paste duplication across environments. 
+It also provides versioning, upgrades, and rollback features which are difficult to manage manually with raw YAML.
+
+2. What is a Helm chart?
+A Helm chart is a reusable package that contains all Kubernetes resource templates needed to deploy an application. 
+It includes files like Deployments, Services, ConfigMaps, and configuration values.
+
+3. What is a Helm release?
+A Helm release is a running instance of a Helm chart deployed inside a Kubernetes cluster. 
+The same chart can be installed multiple times as different releases.
+
+4. What is the role of values.yaml in a chart?
+values.yaml stores configuration values used by the chart templates during deployment. 
+It helps customize settings like image version, replica count, and ports without changing the templates.
+
+5. What is the difference between a chart and a release?
+A chart is the reusable application package or template, while a release is the deployed running instance of that chart in the cluster. 
+One chart can create multiple releases.
+
+6. What does helm install do?
+helm install deploys a Helm chart into the Kubernetes cluster and creates a new release. 
+It automatically creates all resources defined in the chart.
+
+7. What does helm upgrade do?
+helm upgrade updates an existing Helm release with new configuration or chart changes. 
+It is commonly used for application updates and configuration changes.
+
+8. What does helm rollback do?
+helm rollback restores a previous stable version of a Helm release if the current deployment has issues. 
+It helps recover applications quickly during failures.
+
+9. What is Helmfile and how does it relate to Helm?
+Helmfile is a tool that manages multiple Helm releases using a single configuration file called helmfile.yaml. 
+It works on top of Helm and simplifies large-scale release management.
+
+10. When would you use Helmfile instead of running Helm commands directly?
+Helmfile is useful when managing many applications, environments, or Helm releases together. 
+It allows teams to deploy and manage everything using a single command instead of multiple Helm commands.
