@@ -1,0 +1,18 @@
+helmDefaults:
+  wait: true
+  atomic: true
+
+repositories:
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+
+releases:
+  - name: task-2-50-release
+    namespace: ayoob-k-ibrahim
+    kubeContext: ayoob-k-ibrahim@kubenine
+    chart: bitnami/nginx
+
+    values:
+      - replicaCount: 2
+        service:
+          type: ClusterIP
