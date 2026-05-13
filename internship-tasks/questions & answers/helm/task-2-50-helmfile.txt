@@ -1,0 +1,39 @@
+1. What is Helmfile?
+Helmfile is a declarative tool used to manage multiple Helm releases using a single helmfile.yaml file. 
+It helps organize Kubernetes deployments in a simpler and more centralized way by automating Helm operations.
+
+2. Why do teams use Helmfile instead of running many Helm commands manually?
+Teams use Helmfile because manually running many helm install and helm upgrade commands becomes difficult in large projects. 
+Helmfile makes deployments easier, more consistent, safer, and easier to maintain from one central configuration file.
+
+3. How is Helmfile related to Helm?
+Helmfile works on top of Helm and uses Helm internally to deploy and manage applications. 
+It does not replace Helm, but automates Helm commands and manages multiple releases more efficiently.
+
+4. What does a helmfile.yaml file contain?
+A helmfile.yaml file contains Helm release configurations such as release names, charts, namespaces, values, 
+repositories, and kube contexts. It acts as a central file for managing all Kubernetes application deployments.
+
+5. What is kube context in Kubernetes?
+A kube context is a Kubernetes configuration that defines which cluster, user credentials, and namespace kubectl should use. 
+It helps Kubernetes tools know where commands should be executed.
+
+6. Why is kube context important when using Helmfile?
+Kube context is important because engineers often work with multiple Kubernetes clusters such as development, staging, and production. 
+Using the wrong context can accidentally deploy changes to the wrong cluster, so Helmfile uses kubeContext for safer deployments.
+
+7. How did you verify your current kube context in this task?
+I verified the current kube context using kubectl config current-context and kubectl config get-contexts. 
+These commands showed the active Kubernetes context and the list of available contexts.
+
+8. Why should kubeContext be specified explicitly in helmfile.yaml?
+Specifying kubeContext explicitly in helmfile.yaml makes the target Kubernetes cluster clear and prevents accidental 
+deployments to the wrong environment. It also improves deployment safety and auditability.
+
+9. What is the difference between helmfile apply and helmfile sync?
+helmfile apply checks for differences and updates only the releases that have changes, while helmfile sync applies all releases 
+regardless of whether changes exist or not. apply is more efficient and safer for regular deployments.
+
+10. Why is helmfile diff useful before applying changes in production?
+helmfile diff previews Kubernetes resource changes before deployment so engineers can review modifications safely. 
+This helps detect mistakes early and reduces the risk of production deployment failures.
