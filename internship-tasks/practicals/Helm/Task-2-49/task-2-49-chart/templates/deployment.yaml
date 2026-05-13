@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-2-49-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: {{ include "task-2-49-chart.fullname" . }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ include "task-2-49-chart.fullname" . }}
+
+    spec:
+      containers:
+        - name: nginx
+
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+
+          env:
+            - name: APP_MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: task-2-49-configmap
+                  key: appMessage
