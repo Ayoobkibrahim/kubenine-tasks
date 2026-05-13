@@ -1,0 +1,39 @@
+1. What does helm create generate?
+helm create generates a starter Helm chart structure with default files such as Chart.yaml, values.yaml, templates, 
+and helper files. It provides a ready-made setup for deploying Kubernetes applications using Helm.
+
+2. What is the purpose of Chart.yaml?
+Chart.yaml stores metadata about the Helm chart such as the chart name, version, description, and application version. 
+Helm uses this file to identify and manage the chart during deployments.
+
+3. What does helm lint check?
+helm lint checks the Helm chart for syntax errors, invalid YAML formatting, and template issues. 
+It helps validate the chart before deploying resources into the Kubernetes cluster.
+
+4. What does helm template do and why is it useful before installing?
+helm template renders Kubernetes manifests locally without installing them into the cluster. 
+It is useful for previewing generated YAML files and debugging template issues safely before deployment.
+
+5. What happens during helm install?
+helm install renders the Helm templates using values from values.yaml and creates Kubernetes resources inside the cluster. 
+It also creates a Helm release and stores revision history for future upgrades and rollbacks.
+
+6. What value did you change before running helm upgrade?
+Before running helm upgrade, the replicaCount value was changed from 1 to 3 in values.yaml. 
+This updated the Deployment and scaled the application from one pod to three pods.
+
+7. What does helm history show?
+helm history shows all revisions of a Helm release including install, upgrade, and rollback operations. 
+It also displays revision numbers, timestamps, status, and descriptions of each change.
+
+8. Why is Helm revision history important in production?
+Helm revision history is important because it helps teams track deployment changes and recover quickly from failures. 
+It provides a safe rollback mechanism to restore applications to previous stable versions.
+
+9. What does helm rollback actually do under the hood?
+helm rollback restores Kubernetes resources to the manifests stored in a previous Helm revision. 
+Helm reapplies the older configuration so the application returns to its earlier stable state.
+
+10. What is the difference between helm upgrade and helm rollback?
+helm upgrade applies new changes and updates the application to a newer revision, while helm rollback reverts the application 
+back to a previous stable revision. Upgrade moves the deployment forward, whereas rollback restores an older working state.
