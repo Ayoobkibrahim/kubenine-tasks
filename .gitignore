@@ -4,3 +4,28 @@
 *.tfstate.*
 crash.log
 *.tfvars
+
+
+
+# Helm
+# Packaged charts produced by `helm package`
+*.tgz
+
+# Downloaded chart dependencies (populated by `helm dependency update`)
+# Keep Chart.lock and Chart.yaml dependencies entry; ignore the fetched tarballs/dirs.
+**/charts/*.tgz
+**/charts/*/
+
+# Local rendered output / debug dumps
+rendered.yaml
+*.rendered.yaml
+
+# Local-only values overrides (anything matching values.local.* or values.secret.*)
+values.local.*
+values.secret.*
+values.*.local.yaml
+
+# Kubeconfig files (the task provides one; never commit it)
+kubeconfig
+kubeconfig.*
+*.kubeconfig
