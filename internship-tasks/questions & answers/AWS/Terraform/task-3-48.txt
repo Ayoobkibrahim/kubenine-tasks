@@ -1,0 +1,35 @@
+1. What is the difference between the EKS control plane and the data plane? Who manages each?
+In Amazon EKS, the control plane contains core Kubernetes components like the API server, scheduler, controller manager, and etcd database, 
+and AWS fully manages this layer for high availability, scaling, upgrades, and security. The data plane contains the EC2 worker nodes where 
+application pods and containers run, and we manage the node configuration, scaling settings, and workloads running on those nodes.
+
+2. Why does EKS need two separate IAM roles — one for the cluster and one for the node group? What does each one do?
+EKS uses separate IAM roles to follow security best practices and separate responsibilities between the control plane and worker nodes. 
+The cluster IAM role is used by the EKS control plane to interact with AWS services and manage Kubernetes infrastructure, while the node 
+IAM role is attached to EC2 worker nodes so they can join the cluster, pull container images from ECR, and configure pod networking using the VPC CNI plugin.
+
+3. The public subnets require kubernetes.io/cluster/<name> and kubernetes.io/role/elb tags. What breaks if these tags are missing?
+These subnet tags are required because Kubernetes and AWS use them for automatic subnet discovery and LoadBalancer integration inside EKS. 
+If these tags are missing, services of type LoadBalancer may fail to create AWS Elastic LoadBalancers, and EKS networking components may not 
+correctly identify which subnets belong to the cluster.
+
+4. Nodes are in public subnets with an Internet Gateway. Why is a NAT Gateway not needed here?
+The worker nodes are deployed inside public subnets and automatically receive public IP addresses, so they can directly access the internet through the Internet Gateway. 
+A NAT Gateway is only required when instances are placed inside private subnets and need outbound internet access without having public IP addresses.
+
+5. What is the aws-auth ConfigMap and why does it matter? What happens if it is misconfigured?
+The aws-auth ConfigMap is a Kubernetes configuration inside the kube-system namespace that maps AWS IAM users and IAM roles to Kubernetes RBAC permissions. 
+It is very important because worker nodes use it to join the cluster and administrators use it for kubectl access, so if it is misconfigured, nodes may fail 
+to register and cluster access can break completely.
+
+6. How does kubectl authenticate to your EKS cluster? Walk through what happens when you run kubectl get nodes.
+When I run kubectl get nodes, kubectl first reads the kubeconfig file created by aws eks update-kubeconfig and uses AWS CLI to generate a temporary IAM authentication token. 
+The EKS API server validates the token using AWS IAM, checks the aws-auth ConfigMap and Kubernetes RBAC permissions, and then returns the node information if the user is authorized.
+
+7. What is a managed node group? How is it different from launching EC2 instances manually and joining them to the cluster?
+A managed node group is an AWS-managed collection of EKS worker nodes where AWS automatically handles node provisioning, Auto Scaling Groups, updates, unhealthy node replacement, 
+and cluster registration. In a self-managed setup, we would manually create EC2 instances, configure kubelet bootstrap scripts, join nodes to the cluster, and manage upgrades and scaling ourselves.
+
+8. If a node fails, what happens to the pods running on it? Who is responsible for replacing the node — you or AWS?
+If a worker node fails, the pods running on that node become unavailable and Kubernetes automatically reschedules those pods onto healthy nodes in the cluster. 
+Since this setup uses a managed node group, AWS is responsible for automatically replacing the failed EC2 instance and bringing a new node back into the cluster.
