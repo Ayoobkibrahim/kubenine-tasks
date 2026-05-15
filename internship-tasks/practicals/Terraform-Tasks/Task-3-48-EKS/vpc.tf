@@ -14,6 +14,7 @@ locals {
   cluster_subnet_tag_key = "kubernetes.io/cluster/${var.cluster_name}"
 }
 
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
@@ -24,6 +25,13 @@ module "vpc" {
   azs            = slice(data.aws_availability_zones.available.names, 0, 2)
   public_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
 
+  public_subnet_names = [
+    "${local.name_prefix}-public-subnet-1",
+    "${local.name_prefix}-public-subnet-2",
+  ]
+
+  map_public_ip_on_launch = true
+
   enable_nat_gateway   = false
   enable_dns_hostnames = true
   enable_dns_support   = true
@@ -33,9 +41,8 @@ module "vpc" {
   }
 
   public_subnet_tags = {
-    Name                            = "${local.name_prefix}-public-subnet"
-    "kubernetes.io/role/elb"        = "1"
-    (local.cluster_subnet_tag_key)  = "shared"
+    "kubernetes.io/role/elb"       = "1"
+    (local.cluster_subnet_tag_key) = "shared"
   }
 
   tags = local.common_tags

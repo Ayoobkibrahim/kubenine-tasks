@@ -35,14 +35,9 @@ module "eks" {
       instance_types = [var.instance_type]
       capacity_type  = "ON_DEMAND"
 
-      iam_role_name            = "task-3-48-node-role"
-      iam_role_use_name_prefix = false
-
-      iam_role_additional_policies = {
-        AmazonEKSWorkerNodePolicy          = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-        AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-        AmazonEKS_CNI_Policy               = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-      }
+      iam_role_name              = "task-3-48-node-role"
+      iam_role_use_name_prefix   = false
+      iam_role_attach_cni_policy = true
     }
   }
 
