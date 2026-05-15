@@ -1,0 +1,48 @@
+1. Why must the stack components be deployed in a specific order?
+The stack components must be deployed in the correct order because some services depend on others to work properly. For example, Ingress NGINX must be available 
+before exposing Grafana externally, cert-manager must be installed before creating certificates, and the StorageClass must exist before Prometheus or Grafana can 
+create persistent volumes.
+
+2. Why is a working StorageClass required for this stack?
+A working StorageClass is required because monitoring tools like Prometheus, Grafana, and Loki need persistent storage to save metrics, dashboards, and logs. 
+Without a StorageClass, Kubernetes cannot dynamically create Persistent Volumes, which can cause pods to remain in Pending state.
+
+3. What is the role of Ingress NGINX in this setup?
+Ingress NGINX acts as a reverse proxy and entry point for external traffic coming into the Kubernetes cluster. 
+It routes requests from the Grafana domain name to the internal Grafana service and also handles HTTPS traffic using TLS certificates.
+
+4. What is the role of cert-manager?
+cert-manager automates the process of requesting, issuing, and renewing TLS certificates inside Kubernetes. 
+It integrates with certificate providers like Let’s Encrypt and removes the need to manually manage SSL certificates.
+
+5. What is a ClusterIssuer?
+A ClusterIssuer is a cert-manager resource used to define how certificates should be issued across the entire Kubernetes cluster. 
+It contains configuration details such as the ACME server URL, email address, and DNS challenge provider settings.
+
+6. What is a Certificate resource in cert-manager?
+A Certificate resource tells cert-manager which domain needs a TLS certificate and which issuer should be used to generate it. 
+After processing the request, cert-manager automatically creates the TLS secret containing the certificate and private key.
+
+7. How does the DNS-01 challenge work?
+The DNS-01 challenge works by creating a temporary TXT record in the domain’s DNS configuration to prove domain ownership. 
+cert-manager automatically creates this record using the Cloudflare API, Let’s Encrypt verifies it, and then the certificate is issued.
+
+8. Why is Cloudflare API access needed for certificate issuance?
+Cloudflare API access is needed because cert-manager must automatically create and delete DNS TXT records required for the DNS-01 validation process. 
+Without the API token, cert-manager cannot modify DNS records and the certificate request will fail.
+
+9. Why should Grafana be tested locally via port-forward before exposing it publicly?
+Grafana should first be tested locally using port-forwarding to confirm that the application, service, and dashboards are working correctly inside the cluster. 
+This helps isolate internal application issues before troubleshooting ingress, DNS, or TLS problems.
+
+10. How does the TLS secret get from cert-manager into the Ingress?
+After the certificate is successfully issued, cert-manager stores it inside a Kubernetes TLS secret. The Ingress resource references this secret in the TLS section, 
+allowing Ingress NGINX to use the certificate for secure HTTPS connections.
+
+11. How did you verify that Prometheus was working as a Grafana data source?
+I verified Prometheus in Grafana by navigating to the Data Sources section and checking that the Prometheus connection status was successful. 
+I also confirmed that monitoring dashboards and live metrics were loading properly from Prometheus.
+
+12. Why is this kind of stack managed with Helmfile rather than individual Helm commands?
+Helmfile is used because it allows multiple Helm releases to be managed together from a single declarative YAML file. 
+This makes deployments easier, keeps configurations consistent, simplifies upgrades, and ensures components are deployed in the correct order.
