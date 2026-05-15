@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+
+metadata:
+  name: task-2-51-certificate
+  namespace: monitoring
+
+spec:
+  secretName: task-2-51-grafana-tls
+
+  issuerRef:
+    name: task-2-51-cluster-issuer
+    kind: ClusterIssuer
+
+  commonName: grafana.ayoobkibrahim.online
+
+  dnsNames:
+    - grafana.ayoobkibrahim.online
