@@ -1,10 +1,10 @@
-# Task 2.52 — Prometheus Fundamentals: Metrics, Scraping, and PromQL
+# Task 2.52 — Part 3: Write and Document PromQL Queries
 
-**Deliverable:** `task-2-52-promql.md` — Part 3 PromQL queries with explanations and UI evidence (screenshots below live in this same folder).
+**Deliverable:** `task-2-52-promql.md` (required PromQL documentation for Task 2.52)
 
----
+**Related:** [Part 2 — metric types](./task-2-52-metric-types.md) · [Part 4 — target failure](./task-2-52-target-failure.md)
 
-## Part 3 — Write and Document PromQL Queries
+Screenshots for this part live in **this same folder** as the image paths below.
 
 ---
 
