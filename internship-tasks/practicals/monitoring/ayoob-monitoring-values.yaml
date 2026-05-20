@@ -1,14 +1,81 @@
-kubeEtcd:
+grafana:
+  enabled: true
+
+  adminPassword: prom-operator
+
+  defaultDashboardsEnabled: true
+
+  persistence:
+    enabled: false
+
+  service:
+    type: ClusterIP
+
+  sidecar:
+    dashboards:
+      enabled: false
+
+    datasources:
+      enabled: false
+
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://ayoob-prometheus-stack-kub-prometheus.ayoob-monitoring:9090
+          isDefault: true
+
+  nodeSelector:
+    kubernetes.io/hostname: k3s-kubenine-intern-3048-ed140f-node-pool-0576-9nfz5
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 150m
+      memory: 256Mi
+
+prometheus:
+  prometheusSpec:
+    retention: 2d
+
+    scrapeInterval: 30s
+
+    nodeSelector:
+      kubernetes.io/hostname: k3s-kubenine-intern-3048-ed140f-node-pool-0576-9nfz5
+
+    resources:
+      requests:
+        cpu: 150m
+        memory: 512Mi
+      limits:
+        cpu: 300m
+        memory: 1Gi
+
+alertmanager:
   enabled: false
 
-kubeControllerManager:
-  enabled: false
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
 
-kubeScheduler:
-  enabled: false
-
-kubeProxy:
-  enabled: false
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
 
 nodeExporter:
   enabled: true
@@ -16,71 +83,14 @@ nodeExporter:
 prometheus-node-exporter:
   hostNetwork: false
   hostPID: false
-
-prometheusOperator:
-  namespaces:
-    releaseNamespace: true
-    additional: []
-
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 300m
-      memory: 256Mi
-
-prometheus:
-  enabled: true
-
-  prometheusSpec:
-    retention: 1d
-
-    resources:
-      requests:
-        cpu: 200m
-        memory: 512Mi
-      limits:
-        cpu: 500m
-        memory: 1Gi
-
-    storageSpec:
-      emptyDir: {}
-
-alertmanager:
-  enabled: true
-
-  alertmanagerSpec:
-    resources:
-      requests:
-        cpu: 50m
-        memory: 128Mi
-      limits:
-        cpu: 200m
-        memory: 256Mi
-
-    storage:
-      emptyDir: {}
-
-grafana:
-  adminPassword: prom-operator
-
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 300m
-      memory: 512Mi
-
+  hostPort: null
   service:
-    type: ClusterIP
-
-kube-state-metrics:
+    port: 9100
+    targetPort: 9100
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 25m
+      memory: 32Mi
     limits:
-      cpu: 200m
-      memory: 256Mi
+      cpu: 100m
+      memory: 128Mi

@@ -1,0 +1,118 @@
+helmDefaults:
+  wait: true
+  atomic: false
+  timeout: 1200
+
+repositories:
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+
+releases:
+
+  - name: ayoob-prometheus-stack
+
+    namespace: ayoob-monitoring
+
+    createNamespace: true
+
+    kubeContext: ayoob-k-ibrahim@kubenine
+
+    chart: prometheus-community/kube-prometheus-stack
+
+    version: "84.4.0"
+
+    values:
+
+      - grafana:
+
+          enabled: true
+
+          adminPassword: prom-operator
+
+          defaultDashboardsEnabled: true
+
+          persistence:
+            enabled: false
+
+          service:
+            type: ClusterIP
+
+          sidecar:
+
+            datasources:
+              enabled: true
+
+            dashboards:
+              enabled: true
+
+          resources:
+
+            requests:
+              cpu: 50m
+              memory: 128Mi
+
+            limits:
+              cpu: 150m
+              memory: 256Mi
+
+      - prometheus:
+
+          prometheusSpec:
+
+            retention: 2d
+
+            scrapeInterval: 30s
+
+            resources:
+
+              requests:
+                cpu: 150m
+                memory: 512Mi
+
+              limits:
+                cpu: 300m
+                memory: 1Gi
+
+      - alertmanager:
+
+          enabled: true
+
+          alertmanagerSpec:
+
+            resources:
+
+              requests:
+                cpu: 25m
+                memory: 64Mi
+
+              limits:
+                cpu: 100m
+                memory: 128Mi
+
+      - kube-state-metrics:
+
+          resources:
+
+            requests:
+              cpu: 25m
+              memory: 64Mi
+
+            limits:
+              cpu: 100m
+              memory: 128Mi
+
+      - prometheusOperator:
+
+          resources:
+
+            requests:
+              cpu: 25m
+              memory: 64Mi
+
+            limits:
+              cpu: 100m
+              memory: 128Mi
+
+      - prometheus-node-exporter:
+
+          enabled: false
