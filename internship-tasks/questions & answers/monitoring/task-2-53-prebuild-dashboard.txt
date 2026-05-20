@@ -1,0 +1,39 @@
+1. How do pre-built Grafana dashboards get loaded into Grafana automatically — what is the mechanism?
+Pre-built Grafana dashboards are stored as Kubernetes ConfigMaps with a special label called grafana_dashboard=1. Grafana runs a sidecar container that 
+continuously watches these ConfigMaps and automatically imports the dashboard JSON files into Grafana, so dashboards appear automatically without manual import.
+
+2. What is Node Exporter and how does it expose Linux host metrics to Prometheus?
+Node Exporter is a Prometheus exporter that collects Linux system metrics such as CPU usage, memory usage, disk activity, filesystem usage, and network traffic 
+from the host machine. It exposes these metrics on an HTTP /metrics endpoint, and Prometheus periodically scrapes this endpoint to store and monitor the metrics.
+
+3. What is the difference between CPU requests and CPU limits in Kubernetes? Which one does the scheduler use?
+CPU requests define the minimum guaranteed CPU reserved for a container, while CPU limits define the maximum CPU the container is allowed to use. 
+The Kubernetes scheduler uses CPU requests when deciding where to place pods because requests represent the guaranteed resource requirement.
+
+4. What is CPU throttling in Kubernetes and what happens to an application that is being throttled?
+CPU throttling happens when a container tries to use more CPU than its configured CPU limit. The Linux kernel restricts the 
+container’s CPU usage using cgroups, which can slow down the application, increase response times, and reduce overall performance.
+
+5. What is kube-state-metrics and why is it needed separately from cAdvisor?
+kube-state-metrics exposes Kubernetes object information such as pod status, deployments, replicas, requests, and limits directly from the Kubernetes API. 
+It is needed separately because cAdvisor only provides live container runtime metrics and does not expose Kubernetes object state information.
+
+6. What is the difference between cAdvisor and Node Exporter — what does each one measure?
+cAdvisor measures container-level runtime metrics such as container CPU, memory, filesystem, and network usage, while Node Exporter measures host-level Linux system 
+metrics such as node CPU, memory, disk, and network statistics. In short, cAdvisor focuses on containers and Node Exporter focuses on the underlying host machine.
+
+7. What is a Grafana dashboard variable and how does it change the PromQL queries on the dashboard?
+A Grafana dashboard variable is a dynamic dropdown value such as namespace, pod, or instance that allows dashboards to be reusable and interactive. 
+When the selected variable changes, Grafana automatically updates all PromQL queries using that value and refreshes the dashboard data accordingly.
+
+8. Why is the Node Exporter dashboard useful in a production incident involving a slow application?
+The Node Exporter dashboard helps identify infrastructure-level problems such as high CPU usage, memory exhaustion, disk bottlenecks, or network congestion 
+on the node hosting the application. This makes it easier to determine whether application slowness is caused by underlying system resource issues.
+
+9. What does the Alertmanager dashboard show and when would you use it?
+The Alertmanager dashboard shows metrics related to alert processing such as alerts received, alerts sent, notification failures, and notification latency. 
+It is mainly used during incidents to verify that the alerting pipeline is working correctly and notifications are being delivered successfully.
+
+10. After exploring all pre-built dashboards, what is the most important operational question that NONE of them answer for you? Why?
+The most important unanswered question is whether the application is healthy from the end-user perspective. The pre-built dashboards mainly focus on infrastructure 
+and Kubernetes metrics, but they do not provide application-level visibility such as request latency, error rates, user experience, or business transaction success.
