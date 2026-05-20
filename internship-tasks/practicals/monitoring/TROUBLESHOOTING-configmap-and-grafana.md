@@ -7,12 +7,22 @@
 
 This document explains the problems encountered during Tasks 2.52–2.54, the diagnosis steps used, workarounds that worked, and what requires a platform admin to fix permanently.
 
+**Architecture diagrams (standalone):** [ARCHITECTURE-configmap-to-pod.md](./ARCHITECTURE-configmap-to-pod.md) — all Mermaid + ASCII diagrams in one place for study.
+
 ---
 
 ## Table of contents
 
 1. [Symptoms summary](#1-symptoms-summary)
-2. [How ConfigMaps reach a pod](#2-how-configmaps-reach-a-pod)
+2. [How ConfigMaps reach a pod](#2-how-configmaps-reach-a-pod) · [standalone diagrams](./ARCHITECTURE-configmap-to-pod.md)
+   - [2.1 Big picture](#21-big-picture-control-plane-vs-worker-node)
+   - [2.2 Normal flow (Grafana)](#22-normal-flow--step-by-step-your-grafana-example)
+   - [2.3 kubectl vs kubelet](#23-two-clients-two-views-of-the-same-configmap)
+   - [2.4 Four paths (mount / sidecar / secret / import)](#24-related-paths-in-the-monitoring-stack)
+   - [2.5 kube-root-ca.crt](#25-kube-root-cacrt-in-the-same-architecture)
+   - [2.6 Your cluster vs healthy](#26-what-broke-on-your-cluster-overlay-on-normal-architecture)
+   - [2.7 Failure map](#27-where-failures-happen-quick-reference)
+   - [2.8 ASCII diagram](#28-ascii-diagram-plain-text-view)
 3. [Layer 1: Missing kube-root-ca.crt](#3-layer-1-missing-kube-root-cacrt)
 4. [Layer 2: ConfigMap not found but kubectl sees it](#4-layer-2-configmap-not-found-but-kubectl-sees-it)
 5. [Layer 3: Secret volume workaround (Grafana)](#5-layer-3-secret-volume-workaround-grafana)
@@ -48,6 +58,8 @@ Three problems looked like one Grafana bug. They were **separate layers**:
 ## 2. How ConfigMaps reach a pod
 
 This section is the **architecture reference** for everything else in this document. Read it first when debugging mount or “ConfigMap not found” issues.
+
+> **Same content as a focused doc:** [ARCHITECTURE-configmap-to-pod.md](./ARCHITECTURE-configmap-to-pod.md) (diagrams only, easier to print/share).
 
 ### 2.1 Big picture (control plane vs worker node)
 
@@ -776,6 +788,8 @@ kubectl port-forward -n ayoob-monitoring svc/ayoob-prometheus-stack-grafana 3000
 
 | File | Purpose |
 |------|---------|
+| **`ARCHITECTURE-configmap-to-pod.md`** | **Architecture diagrams only** (Mermaid + ASCII) |
+| `TROUBLESHOOTING-configmap-and-grafana.md` | Full troubleshooting + architecture (this file) |
 | `ayoob-monitoring-values.yaml` | Prometheus stack values: no hostPort, sidecars off, nodeSelector |
 | `fix-grafana-secrets.sh` | Re-apply Secret volume patch after `helm upgrade` |
 | `dashboards/*.json` | Exported pre-built Grafana dashboards |

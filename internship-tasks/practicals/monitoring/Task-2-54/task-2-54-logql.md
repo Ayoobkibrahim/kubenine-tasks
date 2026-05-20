@@ -1,5 +1,8 @@
 # Task 2.54 — Custom Grafana Dashboard and Loki Log Querying
 
+**Architecture reference (ConfigMap → pod, Grafana/Loki on this cluster):**  
+[../ARCHITECTURE-configmap-to-pod.md](../ARCHITECTURE-configmap-to-pod.md) · [../TROUBLESHOOTING-configmap-and-grafana.md](../TROUBLESHOOTING-configmap-and-grafana.md)
+
 ---
 
 # Dashboard Focus
