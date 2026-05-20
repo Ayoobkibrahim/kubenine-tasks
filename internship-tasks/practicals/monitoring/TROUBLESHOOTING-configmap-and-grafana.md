@@ -1,5 +1,9 @@
 # Troubleshooting Guide: ConfigMap Mount Issues, Grafana, and Monitoring Stack
 
+> **New to Kubernetes?** Start with the simple step-by-step guide:  
+> **[BEGINNER-GUIDE-fix-configmap-issues.md](./BEGINNER-GUIDE-fix-configmap-issues.md)**  
+> This file is the detailed technical version.
+
 **Cluster:** Civo k3s internship (`kubenine`)  
 **Namespace:** `ayoob-monitoring`  
 **Helm release:** `ayoob-prometheus-stack`  
@@ -7,7 +11,13 @@
 
 This document explains the problems encountered during Tasks 2.52–2.54, the diagnosis steps used, workarounds that worked, and what requires a platform admin to fix permanently.
 
-**Architecture diagrams (standalone):** [ARCHITECTURE-configmap-to-pod.md](./ARCHITECTURE-configmap-to-pod.md) — all Mermaid + ASCII diagrams in one place for study.
+**Docs in this folder:**
+
+| Doc | Who should read it |
+|-----|-------------------|
+| [BEGINNER-GUIDE-fix-configmap-issues.md](./BEGINNER-GUIDE-fix-configmap-issues.md) | Beginners — plain steps |
+| [ARCHITECTURE-configmap-to-pod.md](./ARCHITECTURE-configmap-to-pod.md) | Diagrams — how ConfigMaps reach pods |
+| **This file** | Full technical troubleshooting |
 
 ---
 
