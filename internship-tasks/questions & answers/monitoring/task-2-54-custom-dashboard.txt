@@ -1,0 +1,48 @@
+
+1. What is Promtail and what is its role in the Loki stack? Where does it run in the cluster?
+Promtail is the log collection agent used in the Loki stack. It runs as a DaemonSet on Kubernetes worker nodes, collects container logs 
+from the node filesystem, adds Kubernetes labels like namespace and pod name, and sends the logs to Loki for centralized storage and querying.
+
+2. Why does Loki only index labels and not log content? What is the main trade-off of this design compared to Elasticsearch?
+Loki only indexes labels to reduce storage costs and improve ingestion performance. The main trade-off compared to Elasticsearch 
+is that full-text searches can be slower because Loki scans log chunks during queries instead of using fully indexed log content.
+
+3. What is a LogQL stream selector? What happens if you write a query without one?
+A LogQL stream selector is used to select log streams using labels such as namespace, pod, or container name. 
+Without a stream selector, Loki cannot properly identify which log streams to search, making the query invalid or inefficient.
+
+4. What is the difference between `|= "error"` and `| json | level="error"` in LogQL?
+`|= "error"` searches for the text “error” anywhere inside raw log lines, while `| json | level="error"` first parses structured JSON logs 
+and then filters logs where the level field exactly matches “error”. The JSON method is more accurate when applications use structured logging.
+
+5. What is a metric query in LogQL — how do you convert a log stream into a rate metric?
+A metric query in LogQL converts logs into numerical metrics that can be graphed in Grafana. This is done using functions 
+like `rate()` or `count_over_time()` on log streams to calculate metrics such as log lines per second.
+
+6. What is a Grafana dashboard variable and how does it make a dashboard reusable?
+A Grafana dashboard variable is a dynamic value that automatically changes dashboard queries based on user selection. It makes dashboards 
+reusable because the same dashboard can monitor multiple namespaces, pods, or environments without changing the panel queries manually.
+
+7. How did you decide what panels to put in your custom dashboard? What operational question does each one answer?
+The dashboard panels were selected based on common Kubernetes troubleshooting and monitoring requirements. The panels answer operational questions such as 
+whether pods are healthy, which workloads consume high CPU or memory, whether pods are restarting frequently, and what application errors are currently happening.
+
+8. What is the difference between a Stat panel and a Time Series panel in Grafana? When would you use each?
+A Stat panel displays a single summarized value such as the total running pods, while a Time Series panel displays values changing over time such as 
+CPU or memory usage trends. Stat panels are useful for current state visibility, and Time Series panels are useful for trend analysis and performance monitoring.
+
+9. What does the `$namespace` variable in your dashboard actually do to the PromQL query?
+The `$namespace` variable dynamically replaces the namespace value inside PromQL queries. This allows all dashboard 
+panels to automatically update and display metrics only for the selected Kubernetes namespace.
+
+10. Why is it useful to have Prometheus metric panels and Loki log panels on the same dashboard?
+Prometheus metrics help identify performance and resource problems, while Loki logs provide detailed application and system error information. 
+Having both together in one dashboard improves troubleshooting because operators can correlate metrics and logs from the same workload quickly.
+
+11. What is a Grafana transformation and when would you use one?
+A Grafana transformation modifies or reshapes query results before they are visualized in panels. Transformations are useful when 
+combining multiple queries, renaming fields, filtering results, or reorganizing data for better dashboard visualization.
+
+12. If a pod is crashing repeatedly, which panels on your custom dashboard would you look at first and why?
+I would first check the Container Restart panel to confirm restart spikes and then check the Error Logs panel to identify application 
+failures or crash messages. After that, I would review CPU and Memory panels to see whether resource pressure or high usage caused the crashes.
