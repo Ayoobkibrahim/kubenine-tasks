@@ -1,0 +1,55 @@
+1. What is a Grafana alert rule? What two things does every alert rule need?
+A Grafana alert rule is a monitoring rule that automatically checks metrics and sends alerts when a condition becomes abnormal. 
+Every alert rule needs two main things: a query to collect metric data and a condition or threshold that decides when the alert should trigger.
+
+2. What is the difference between the Pending state and the Firing state? Why does the pending period exist?
+The Pending state means the alert condition has been matched but Grafana is waiting for the configured time before triggering the alert. The Firing state means the 
+condition stayed true long enough and the alert is now active; the pending period exists to prevent false alerts caused by temporary spikes or short-lived issues.
+
+3. What is a contact point in Grafana alerting? Give 3 examples of contact point types.
+A contact point is the destination where Grafana sends alert notifications when an alert is triggered. 
+Common examples of contact points are Slack, Email, and Microsoft Teams, but Grafana also supports webhooks, PagerDuty, and many other integrations.
+
+4. What is a notification policy and how does it decide which contact point to use for a given alert?
+A notification policy is a routing system in Grafana alerting that decides where alerts should be sent based on alert labels. 
+It checks matchers like severity, team, or namespace labels and then routes matching alerts to the appropriate contact point.
+
+5. What does group by in a notification policy do? Why is grouping important when many alerts fire at once?
+The group by option combines similar alerts into a single notification using shared labels such as namespace or pod. Grouping is important 
+because it reduces alert spam and helps operators manage incidents more efficiently when many alerts fire at the same time.
+
+6. What is group wait and why would you set it to 30 seconds instead of 0?
+Group wait is the delay before Grafana sends the first grouped notification after an alert starts firing. Setting it to 30 seconds 
+instead of 0 allows related alerts to arrive together so Grafana can send one combined notification instead of multiple separate notifications.
+
+7. What is repeat interval and why does it exist? What happens if you set it to 0?
+Repeat interval controls how often Grafana resends notifications for alerts that are still firing. It exists to remind operators about 
+ongoing incidents, but if it is set to 0 or too low, users may receive excessive repeated notifications and alert fatigue can occur.
+
+8. What is a silence in Grafana? How is it different from resolving an alert?
+A silence temporarily suppresses notifications for matching alerts without stopping the alert itself from evaluating. 
+Resolving an alert means the actual problem condition no longer exists and the alert has returned to the Normal state.
+
+9. When would you use a silence in a real production scenario? Give a specific example.
+A silence is commonly used during planned maintenance or infrastructure upgrades where alerts are expected temporarily. For example, 
+before rebooting Kubernetes worker nodes for security patching, operators may silence node and pod alerts for a few hours to avoid unnecessary notifications.
+
+10. What is an inhibition rule? How is it different from a silence?
+An inhibition rule automatically suppresses one alert when another related alert is already firing, usually to reduce duplicate notifications from the 
+same root cause. A silence is manually created for a specific time period, while inhibition works automatically based on alert relationships and labels.
+
+11. In the inhibition rule you designed, what does the equal: [instance] field do? What would happen without it?
+The equal: [instance] field ensures the inhibition only happens when both alerts belong to the same node or instance. 
+Without it, a CPU alert from one node could incorrectly suppress pod restart alerts across unrelated nodes in the cluster.
+
+12. If a node goes down and you have 20 pod-level alerts firing as a result, what is the best way to handle the notification noise — silence or inhibition? Explain your reasoning.
+Inhibition is the better approach because it automatically suppresses secondary pod alerts when the main node failure alert is already firing. 
+This helps operators focus on the root cause instead of being overwhelmed by many downstream alerts caused by the same issue.
+
+13. What is the No Data alert state and what typically causes it?
+The No Data state happens when Grafana cannot retrieve metric data for an alert query. This is usually caused by stopped exporters, 
+disconnected Prometheus targets, missing metrics, datasource issues, or queries that currently return no matching results.
+
+14. After completing all 4 tasks in this module, what would you do differently the next time you deploy a monitoring stack for a new project?
+The next time I deploy a monitoring stack, I would plan alert labels, routing policies, dashboards, and alert noise reduction strategies before deployment. 
+This would make the monitoring environment more organized, scalable, and production-ready from the beginning.
