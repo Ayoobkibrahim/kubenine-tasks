@@ -47,24 +47,262 @@ Three problems looked like one Grafana bug. They were **separate layers**:
 
 ## 2. How ConfigMaps reach a pod
 
-### Normal flow
+This section is the **architecture reference** for everything else in this document. Read it first when debugging mount or “ConfigMap not found” issues.
 
-1. **Helm** (or `kubectl apply`) creates ConfigMap objects in the Kubernetes API (stored in etcd).
-2. A **Pod** spec references the ConfigMap: `volumes[].configMap.name: <name>`.
-3. **Kubelet** on the scheduled node fetches the object from the API and mounts files into the container filesystem.
-4. The container starts and reads those files (e.g. `grafana.ini`).
+### 2.1 Big picture (control plane vs worker node)
 
-### Where failures happen
+Kubernetes splits work into two places:
 
-| Step | Failure example |
-|------|-----------------|
-| Object not created | Helm failed partially; wrong release name |
-| API/etcd unhealthy | Objects exist but watches are stale |
-| Kubelet cannot read CM | "ConfigMap not found" on mount |
-| Wrong volume type / path | Mount succeeds but wrong file path |
-| Controller missing | `kube-root-ca.crt` never published to namespace |
+| Layer | Components | Role |
+|-------|------------|------|
+| **Control plane** | API server, etcd, controllers (incl. `root-ca-cert-publisher`), Helm/kubectl clients | Store and manage objects (ConfigMaps, Pods, Secrets) |
+| **Worker node** | kubelet, container runtime (containerd) | Run pods, **mount volumes** into container filesystems |
+
+**Critical idea:** When you run `kubectl get configmap`, you talk to the **API server**. When a pod mounts a ConfigMap, the **kubelet on that node** must fetch the same object. Those are two different code paths. They can disagree on a sick cluster.
+
+```mermaid
+flowchart TB
+  subgraph clients [Clients - read/write API only]
+    Helm[Helm install/upgrade]
+    Kubectl[kubectl get/describe]
+    Sidecar[Grafana dashboard sidecar - lists CM via API]
+  end
+
+  subgraph control [Control plane]
+    API[Kubernetes API server]
+    Etcd[(etcd - object store)]
+    RCA[root-ca-cert-publisher controller]
+    API <--> Etcd
+    RCA -->|creates kube-root-ca.crt| API
+  end
+
+  subgraph node [Worker node e.g. 9nfz5 or kamwk]
+    Kubelet[kubelet volume manager]
+    CTR[containerd]
+    Pod[Pod filesystem]
+    Kubelet --> CTR
+    CTR --> Pod
+  end
+
+  Helm -->|POST ConfigMap| API
+  Kubectl -->|GET ConfigMap| API
+  Sidecar -->|LIST/WATCH ConfigMap| API
+
+  API -->|watch/get object| Kubelet
+  Kubelet -->|mount files| Pod
+```
+
+### 2.2 Normal flow — step by step (your Grafana example)
+
+This is what **should** happen for `ayoob-prometheus-stack-grafana`:
+
+```mermaid
+sequenceDiagram
+  participant H as Helm
+  participant API as API server / etcd
+  participant S as Deployment + ReplicaSet
+  participant Sch as Scheduler
+  participant K as Kubelet on node
+  participant P as Grafana pod
+
+  H->>API: Create ConfigMap ayoob-prometheus-stack-grafana
+  Note over API: data: grafana.ini, datasources.yaml
+
+  H->>API: Create Deployment with volume configMap
+  API->>S: Desired state: 1 Grafana pod
+
+  S->>Sch: Schedule new pod
+  Sch->>API: Bind pod to node e.g. 9nfz5
+
+  K->>API: Get ConfigMap ayoob-prometheus-stack-grafana
+  API-->>K: CM data bytes
+  K->>P: Mount volume at /etc/grafana/grafana.ini
+
+  P->>P: Start container, read config
+```
+
+**Step-by-step (numbered):**
+
+| Step | Who | What happens |
+|------|-----|----------------|
+| 1 | **Helm** | Renders chart templates → applies ConfigMap YAML to API |
+| 2 | **API / etcd** | Stores object `ConfigMap/ayoob-monitoring/ayoob-prometheus-stack-grafana` |
+| 3 | **Helm** | Creates Deployment; pod template includes `volumes[].configMap` |
+| 4 | **Scheduler** | Assigns pod to a node (e.g. `9nfz5`) |
+| 5 | **Kubelet** | Before starting containers: **SetUp** volume → fetch CM from API |
+| 6 | **Kubelet** | Mounts files (often via `subPath`, e.g. `grafana.ini`) into pod |
+| 7 | **Container** | Starts; Grafana reads `/etc/grafana/grafana.ini` |
+
+**Example volume snippet (from Deployment):**
+
+```yaml
+volumes:
+  - name: config
+    configMap:
+      name: ayoob-prometheus-stack-grafana
+containers:
+  - name: grafana
+    volumeMounts:
+      - name: config
+        mountPath: /etc/grafana/grafana.ini
+        subPath: grafana.ini
+```
+
+### 2.3 Two clients, two views of the same ConfigMap
+
+```mermaid
+flowchart LR
+  subgraph pathA [Path A - kubectl / Helm user]
+    U[You on laptop]
+    K[kubectl get cm]
+    API1[API server]
+    U --> K --> API1
+    API1 -->|200 OK object exists| K
+  end
+
+  subgraph pathB [Path B - pod actually running]
+    Kubelet[kubelet on worker]
+    API2[API server]
+    Vol[Volume mount in pod]
+    Kubelet -->|Get ConfigMap| API2
+    API2 -->|object or NOT FOUND| Kubelet
+    Kubelet --> Vol
+  end
+```
+
+| Path | Tool | Question it answers |
+|------|------|---------------------|
+| **A** | `kubectl get configmap` | Does the object exist in the API/etcd? |
+| **B** | kubelet volume plugin | Can **this node** mount that object **right now** into a **new** pod? |
+
+**On your cluster:** Path A succeeded; Path B failed for ConfigMaps (but Path B worked for **Secrets**). That is why the Secret workaround fixed Grafana.
+
+### 2.4 Related paths in the monitoring stack
+
+ConfigMaps are used in **three different ways** in your setup. Do not confuse them:
+
+```mermaid
+flowchart TB
+  subgraph mount [A - Volume mount into pod - BROKEN for new pods]
+    CM1[ConfigMap ayoob-prometheus-stack-grafana]
+    CM2[ConfigMap grafana-config-dashboards]
+    GPod[Grafana pod]
+    CM1 -->|kubelet mount| GPod
+    CM2 -->|kubelet mount| GPod
+  end
+
+  subgraph sidecar [B - Sidecar reads API - BROKEN API 504]
+    CM3[27x CM with label grafana_dashboard=1]
+    SC[grafana-sc-dashboard container]
+    CM3 -->|LIST via Kubernetes API| SC
+    SC -->|write files| GPod2[Grafana pod /tmp/dashboards]
+  end
+
+  subgraph secret [C - Secret mount workaround - WORKS]
+    SEC[Secret ayoob-grafana-config-secret]
+    GPod3[Grafana pod]
+    SEC -->|kubelet mount| GPod3
+  end
+
+  subgraph manual [D - Manual import - WORKS]
+    CM4[Dashboard CM in API]
+    Export[Export JSON on laptop]
+    API_UI[Grafana Import API / UI]
+    CM4 -.->|kubectl get -o json| Export
+    Export --> API_UI
+  end
+```
+
+| Path | Mechanism | Your cluster |
+|------|-----------|--------------|
+| **A** Volume mount | kubelet mounts CM as files | Failed (`ConfigMap not found`) |
+| **B** Dashboard sidecar | Sidecar watches CM via API | Crashed (`504 ResourceVersionTooLarge`) |
+| **C** Secret workaround | Same data in Secret; patch Deployment | **Working** |
+| **D** Manual import | Copy JSON from CM with Python; import to Grafana | **Working** |
+
+### 2.5 `kube-root-ca.crt` in the same architecture
+
+Every pod also gets a **projected** service-account volume that includes ConfigMap `kube-root-ca.crt`:
+
+```mermaid
+flowchart LR
+  RCA[root-ca-cert-publisher controller]
+  API[API server]
+  NS[Namespace ayoob-monitoring]
+  Pod[Any pod spec]
+  RCA -->|should create| API
+  API --> NS
+  NS -->|kube-root-ca.crt CM| Pod
+```
+
+If `kube-root-ca.crt` is missing in `ayoob-monitoring`, the controller chain is broken. Fix: [Layer 1](#3-layer-1-missing-kube-root-cacrt) (manual copy or admin repair).
+
+### 2.6 What broke on **your** cluster (overlay on normal architecture)
+
+```mermaid
+flowchart TB
+  subgraph healthy [Healthy cluster - expected]
+    H1[Helm creates CM] --> H2[API stores CM]
+    H2 --> H3[kubelet mounts CM]
+    H3 --> H4[Pod Running]
+  end
+
+  subgraph yours [Your shared cluster - actual]
+    Y1[Helm creates CM] --> Y2[API stores CM - kubectl sees it]
+    Y2 --> Y3[kubelet: ConfigMap not found]
+    Y3 --> Y4[Pod ContainerCreating / FailedMount]
+    Y4 --> Y5[Workaround: Secret mount OR manual dashboard import]
+    Y5 --> Y6[Pod Running with Secret]
+  end
+```
+
+| Stage | Healthy | Your cluster |
+|-------|---------|--------------|
+| CM in API | Yes | Yes |
+| `kube-root-ca.crt` in namespace | Yes | **No** (until manual copy) |
+| Kubelet mounts new CM | Yes | **No** |
+| Kubelet mounts new Secret | Yes | **Yes** |
+| Sidecar lists all CMs | Yes | **504 / RV too large** |
+
+### 2.7 Where failures happen (quick reference)
+
+| Step | Component | Failure example | Doc section |
+|------|-----------|-----------------|-------------|
+| 1 | Helm | Partial install; wrong chart path | Layer 2 |
+| 2 | API/etcd | CM exists but watch lag | Layer 2, 5 |
+| 3 | `root-ca-cert-publisher` | No `kube-root-ca.crt` | Layer 1 |
+| 4 | Scheduler | hostPort conflict (not CM) | Layer 4 |
+| 5 | Kubelet CM plugin | `ConfigMap not found` | Layer 2, 3 |
+| 6 | Kubelet Secret plugin | OK → use Secret workaround | Layer 3 |
+| 7 | Sidecar + API | `ResourceVersionTooLarge` | Layer 5 |
+| 8 | jsonpath export | Empty `.json` files | Layer 5 |
+
+### 2.8 ASCII diagram (plain-text view)
+
+```
+  YOUR LAPTOP                         CONTROL PLANE                    WORKER NODE (e.g. 9nfz5)
+  -----------                         -------------                    ---------------------------
+
+  helm upgrade  ----------------->   API Server  <--------->  etcd
+  kubectl get cm ---------------->       |              (ConfigMap objects stored here)
+                                         |
+                    root-ca-cert-publisher (should create kube-root-ca.crt per namespace)
+                                         |
+  kubectl sees CM EXISTS                 |
+                                         |  watch / GET
+                                         v
+                                    KUBELET  ---------->  mount volume into pod dir
+                                         |                    |
+                                         |                    v
+                                         X  (FAILED HERE       GRAFANA CONTAINER
+                                         on your cluster)      reads grafana.ini
+
+  WORKAROUND: patch Deployment to use Secret instead of ConfigMap
+                                    KUBELET  ---------->  mount Secret OK --> Pod Running
+```
 
 ---
+
 
 ## 3. Layer 1: Missing kube-root-ca.crt
 
