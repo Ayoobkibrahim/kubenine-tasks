@@ -14,9 +14,22 @@ grafana:
   sidecar:
     dashboards:
       enabled: false
-
     datasources:
       enabled: false
+
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'auto-from-cms'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          updateIntervalSeconds: 30
+          options:
+            path: /var/lib/grafana/dashboards/auto
 
   datasources:
     datasources.yaml:
@@ -33,11 +46,11 @@ grafana:
 
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 100m
+      memory: 384Mi
     limits:
-      cpu: 150m
-      memory: 256Mi
+      cpu: 500m
+      memory: 768Mi
 
 prometheus:
   prometheusSpec:
@@ -69,13 +82,7 @@ kube-state-metrics:
       memory: 128Mi
 
 prometheusOperator:
-  resources:
-    requests:
-      cpu: 25m
-      memory: 64Mi
-    limits:
-      cpu: 100m
-      memory: 128Mi
+  enabled: false
 
 nodeExporter:
   enabled: true
