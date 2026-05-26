@@ -1,0 +1,31 @@
+1. What is the difference between Layer 4 and Layer 7 protection? Give an example of an attack each can and cannot stop.
+Layer 4 protection works with network-level information like IP addresses, ports, TCP, and UDP traffic. Services like Security Groups and NACLs can block traffic from unwanted IPs or ports, but they 
+cannot inspect HTTP request content. Layer 7 protection works at the application level, and AWS WAF can inspect URLs, headers, query strings, and request bodies to block attacks like SQL Injection and XSS.
+
+2. What is a WebACL and what does it contain?
+A WebACL (Web Access Control List) is the main AWS WAF resource that protects applications such as ALB or CloudFront distributions. It contains rules, rule groups, 
+priorities, actions, and logging settings used to inspect incoming HTTP requests. The WebACL decides whether requests should be allowed, blocked, counted, or challenged.
+
+3. What happens when a request matches multiple rules in a WebACL?
+AWS WAF evaluates rules based on priority order, starting from the lowest priority number first. If a request matches a rule with a 
+terminating action like Allow or Block, WAF immediately stops checking the remaining rules. This behavior is called “first match wins.”
+
+4. What is the difference between a Block action and a Count action? When would you use Count?
+A Block action stops the request and prevents it from reaching the application. A Count action only records and monitors the request 
+without blocking it. Count mode is mainly used for testing new rules safely and checking for false positives before changing the action to Block.
+
+5. Name three AWS Managed Rule Groups and describe what each one protects against.
+The Core Rule Set (CRS) protects against common OWASP Top 10 web application attacks and suspicious request patterns. The SQL Injection Rule Set detects 
+and blocks SQL injection attempts targeting databases. The Amazon IP Reputation List blocks requests coming from known malicious or suspicious IP addresses.
+
+6. What is a rate-based rule and when would you use one?
+A rate-based rule monitors how many requests are sent from a single IP address within a 5-minute time window. If the request count exceeds the configured limit, 
+AWS WAF can either Count or Block the traffic. These rules are commonly used to prevent brute-force attacks, credential stuffing, scraping, and bot abuse.
+
+7. What is the difference between REGIONAL and CLOUDFRONT scope in WAF?
+REGIONAL scope is used to protect AWS resources inside a specific region, such as ALBs, API Gateway APIs, and AppSync applications. CLOUDFRONT scope is 
+used to protect CloudFront distributions globally across all edge locations. CloudFront WAF resources must be created in the US East (N. Virginia) region.
+
+8. How does WAF logging work? What must the log group name start with?
+AWS WAF can send detailed request logs to CloudWatch Logs for monitoring, troubleshooting, and security analysis. The logs include information 
+such as source IPs, matched rules, actions taken, and request details. The CloudWatch log group name must always start with aws-waf-logs-.

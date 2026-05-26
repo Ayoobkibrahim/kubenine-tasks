@@ -1,0 +1,23 @@
+1. Why is the IP block rule set to priority 1 (before the managed rules)?
+The IP block rule is set to priority 1 so AWS WAF checks this rule first before processing any other rules. If the source IP matches
+4the blocked IP set, the request is immediately denied. This improves security and avoids unnecessary processing of managed rules.
+
+2. Why is the rate-based rule set to Count instead of Block?
+The rate-based rule is configured in Count mode to safely monitor traffic without blocking users during testing. This helps analyze how many 
+requests are coming from a client before enabling strict blocking. It is useful for tuning thresholds and avoiding false positives.
+
+3. What does the AWSManagedRulesCommonRuleSet protect against?
+AWSManagedRulesCommonRuleSet protects web applications from common Layer 7 attacks and malicious requests. It includes protection against SQL injection, 
+cross-site scripting (XSS), bad HTTP requests, and suspicious input patterns. This managed rule group provides general-purpose security for web applications.
+
+4. What is the default action of your WebACL and when does it apply?
+The default action of the WebACL is Allow. This action is applied when a request does not match any custom or managed 
+blocking rule inside the WebACL. It ensures that only suspicious or restricted traffic is blocked while normal traffic is allowed.
+
+5. How do Sampled Requests differ from WAF full logging?
+Sampled Requests provide a small set of recent requests for quick monitoring and troubleshooting inside the WAF dashboard. Full logging captures detailed information 
+about all requests and stores them in services like CloudWatch Logs, S3, or Kinesis. Full logging is mainly used for deep analysis, auditing, and long-term monitoring.
+
+6. If you wanted to block all requests from a specific country, what type of rule would you add?
+I would add a Geographic Match Rule, also called a Geo Match rule. This rule allows AWS WAF to filter traffic 
+based on the client’s country location. It can be configured to block or allow requests from selected countries.
