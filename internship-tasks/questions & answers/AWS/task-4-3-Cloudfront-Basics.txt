@@ -1,0 +1,31 @@
+1. What is the difference between an edge location and a regional edge cache?
+An edge location is the CloudFront server closest to the user that directly delivers cached content. A regional edge cache is a larger 
+caching layer between the edge location and the origin server. It helps reduce repeated requests to the origin and improves overall performance.
+
+2. What happens when a user requests a file that is not cached at the edge (cache miss)?
+When a cache miss happens, CloudFront checks the regional edge cache and then contacts the origin server if needed. The file 
+is fetched from the origin and delivered to the user. CloudFront then stores the file in cache so future requests are faster.
+
+3. What is Origin Access Control (OAC) and what problem does it solve?
+Origin Access Control (OAC) allows CloudFront to securely access private S3 buckets using signed requests. It prevents users 
+from directly accessing the S3 bucket and bypassing CloudFront. This improves security and ensures all traffic goes through CloudFront.
+
+4. What is a cache behaviour and when would you add one?
+A cache behaviour is a rule that tells CloudFront how to handle requests for specific URL paths. It can define different origins, 
+caching settings, or protocol policies for different paths. For example, you may create separate behaviours for /api/* and /images/*.
+
+5. If your origin sends Cache-Control: max-age=3600, what does CloudFront do with that?
+CloudFront caches the file for 3600 seconds, which is 1 hour. During that time, users receive the cached version instead 
+of CloudFront contacting the origin again. After the cache expires, CloudFront fetches a fresh copy from the origin.
+
+6. What is the difference between CloudFront Functions and Lambda@Edge?
+CloudFront Functions are lightweight and used for simple tasks like redirects, URL rewrites, or header changes. Lambda@Edge is more powerful 
+and supports complex processing like authentication or request body inspection. Lambda@Edge is slower and more expensive compared to CloudFront Functions.
+
+7. Why must the ACM certificate for a CloudFront distribution be created in us-east-1?
+CloudFront is a global AWS service and only supports ACM certificates created in the us-east-1 region. AWS uses this region as the central 
+location for CloudFront certificate management. Even if your origin is in another region, the certificate must still be created in us-east-1.
+
+8. What is a cache invalidation and when would you use one?
+Cache invalidation removes cached files from CloudFront before their TTL expires. It is commonly used after updating 
+website files or static content. This ensures users immediately receive the latest version instead of old cached content.
