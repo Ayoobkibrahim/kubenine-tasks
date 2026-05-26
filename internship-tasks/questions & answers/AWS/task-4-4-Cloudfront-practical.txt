@@ -1,0 +1,29 @@
+1. What is the X-Cache header and what does it tell you?
+The X-Cache header shows whether CloudFront served the content from cache or fetched it from the origin server.
+If it shows Hit from cloudfront, the file was served from the CloudFront cache.
+If it shows Miss from cloudfront, CloudFront fetched the file from the S3 bucket.
+
+2. Why does the first request after a cache invalidation always show a cache miss?
+Cache invalidation removes the old cached files from CloudFront edge locations.
+So when the next request comes, CloudFront no longer has the file in cache.
+It must download the file again from the S3 origin, which creates a cache miss.
+
+3. What does "Redirect HTTP to HTTPS" viewer protocol policy do at the edge?
+This setting forces users to use HTTPS instead of HTTP when accessing the website.
+If a user sends an HTTP request, CloudFront automatically redirects it to HTTPS.
+This improves security by encrypting the communication between the client and CloudFront.
+
+4. Why did you need to apply a bucket policy to S3 after creating the distribution?
+The bucket policy allows CloudFront to securely access objects inside the private S3 bucket.
+Without the bucket policy, CloudFront would not have permission to read the files.
+As a result, users would receive an Access Denied error.
+
+5. What would happen if you skipped the OAC setup and left the S3 bucket public?
+If the bucket is public, anyone can directly access the S3 objects without using CloudFront.
+This reduces security because the bucket is exposed to the internet.
+It also bypasses CloudFront features like secure access control and controlled origin access.
+
+6. What is the CachingOptimized cache policy and what TTL does it use?
+CachingOptimized is an AWS managed cache policy used by CloudFront to improve caching performance.
+It caches files efficiently to reduce requests to the origin server and improve speed.
+The default TTL used by this policy is 24 hours.
