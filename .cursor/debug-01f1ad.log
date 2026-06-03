@@ -1,0 +1,4 @@
+{"sessionId":"01f1ad","runId":"post-fix-v6","hypothesisId":"H1","location":"debug-monitoring.sh:prom-vol","message":"prometheus db volume type","data":{"type":"emptyDir"},"timestamp":1780467001000}
+{"sessionId":"01f1ad","runId":"post-fix-v6","hypothesisId":"H1","location":"debug-monitoring.sh:am-vol","message":"alertmanager db volume type","data":{"type":"emptyDir"},"timestamp":1780467001000}
+{"sessionId":"01f1ad","runId":"post-fix-v6","hypothesisId":"H2","location":"debug-monitoring.sh:cr-storage","message":"CR storage fields","data":{"prometheusStorage":"empty","alertmanagerStorage":"empty"},"timestamp":1780467002000}
+{"sessionId":"01f1ad","runId":"post-fix-v6","hypothesisId":"H3","location":"debug-monitoring.sh:sts-vct","message":"STS volumeClaimTemplates byte length","data":{"prometheusVctLen":0,"alertmanagerVctLen":0},"timestamp":1780467003000}

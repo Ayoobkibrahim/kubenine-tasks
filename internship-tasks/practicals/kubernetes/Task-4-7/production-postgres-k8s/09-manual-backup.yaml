@@ -1,0 +1,10 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+
+metadata:
+  name: ayoob-backup-001
+  namespace: ayoob-k-ibrahim
+
+spec:
+  cluster:
+    name: ayoob-postgres

@@ -1,0 +1,14 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+
+metadata:
+  name: ayoob-daily-backup
+  namespace: ayoob-k-ibrahim
+
+spec:
+  schedule: "0 */6 * * *"
+
+  backupOwnerReference: self
+
+  cluster:
+    name: ayoob-postgres

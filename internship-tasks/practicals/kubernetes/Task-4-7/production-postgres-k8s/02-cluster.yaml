@@ -1,0 +1,37 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+
+metadata:
+  name: ayoob-postgres
+  namespace: ayoob-k-ibrahim
+
+spec:
+  instances: 3
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:17
+
+  primaryUpdateStrategy: unsupervised
+
+  storage:
+    storageClass: civo-volume
+    size: 5Gi
+
+  bootstrap:
+    initdb:
+      database: appdb
+      owner: ayoob
+
+      secret:
+        name: ayoob-postgres-secret
+
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+  monitoring:
+    enablePodMonitor: true

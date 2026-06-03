@@ -1,0 +1,24 @@
+spec:
+  backup:
+    target: primary
+    barmanObjectStore:
+      destinationPath: s3://ayoob-cnpg-backups
+      s3Credentials:
+        accessKeyId:
+          name: ayoob-s3-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: ayoob-s3-creds
+          key: ACCESS_SECRET_KEY
+      wal:
+        compression: gzip
+      data:
+        compression: gzip
+    retentionPolicy: "7d"
+  env:
+    - name: AWS_DEFAULT_REGION
+      value: ap-south-1
+    - name: AWS_REQUEST_CHECKSUM_CALCULATION
+      value: when_required
+    - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+      value: when_required
