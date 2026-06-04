@@ -1,0 +1,39 @@
+1. Why can you not just run Postgres as a Deployment with a single pod? What breaks?
+Running PostgreSQL as a single Deployment pod creates a single point of failure. If the pod or node fails, the database becomes unavailable and applications 
+cannot access their data. It also provides no replication, automatic failover, or high availability, making it unsuitable for production environments.
+
+2. What is a Kubernetes operator and why is it better than managing a StatefulSet yourself?
+A Kubernetes operator is a controller that automates application-specific tasks using built-in operational knowledge. CloudNativePG automatically handles database provisioning, backups, 
+replication, failover, and upgrades without manual intervention. This is better than managing a StatefulSet yourself because it reduces operational complexity and minimizes human error.
+
+3. What is the difference between the read-write and read-only service endpoints? When does your app use each?
+The read-write service endpoint always points to the primary PostgreSQL instance and is used for operations that modify data, such as INSERT, UPDATE, and DELETE. The read-only 
+service endpoint points to replica instances and is used for SELECT queries. Using replicas for reads helps distribute workload and improves application scalability.
+
+4. What is replication lag and what happens to reads during it?
+Replication lag is the delay between a transaction being committed on the primary database and being applied on the replica databases. When lag exists, replicas may return slightly 
+older data than the primary because they have not yet received the latest changes. This means read queries on replicas can temporarily show stale information until replication catches up.
+
+5. What is connection pooling and why does Postgres need it on Kubernetes?
+Connection pooling is a technique that reuses existing database connections instead of opening a new connection for every request. PostgreSQL uses significant resources for each 
+connection, so too many direct connections can impact performance. Tools like PgBouncer help manage connections efficiently and improve database stability in Kubernetes environments.
+
+6. What is the difference between a base backup and WAL archiving? Why do you need both?
+A base backup is a complete snapshot of the database at a specific point in time. WAL archiving stores transaction logs that record every change made after the 
+backup was taken. Both are required because the base backup provides the starting point, while WAL files allow recovery of all changes up to the desired recovery time.
+
+7. What is point-in-time recovery and what problem does HA failover not solve?
+Point-in-time recovery (PITR) allows restoring a database to an exact moment in the past using backups and archived WAL files. This is useful for recovering from accidental 
+deletions, bad deployments, or data corruption. High availability failover only protects against infrastructure failures and does not recover lost or corrupted data.
+
+8. What does your monitoring alert on and how would you respond to each alert?
+My monitoring alerts on high replication lag, low streaming replica count, and stale backups. If replication lag is high, I would investigate replica health and network connectivity; if replica count drops, 
+I would check failed database instances; and if backups become stale, I would verify backup jobs and S3 storage access. The goal is to identify the root cause quickly and restore the database to a healthy state.
+
+9. What does your NetworkPolicy allow and what does it block?
+The NetworkPolicy allows Prometheus pods in the ayoob-monitoring namespace to access PostgreSQL metrics on TCP port 9187. This enables monitoring while 
+keeping the database environment secure. Any traffic that is not explicitly allowed by the policy is blocked, preventing unauthorized access to database metrics.
+
+10. If you were handing this cluster to a new engineer at 2am, what would they need to know?
+They should know how to check CloudNativePG cluster health, PostgreSQL pod status, backups, replication status, and monitoring dashboards. They should also know the purpose of the read-write and read-only 
+services, the S3 backup location, and how to access Prometheus, Grafana, and Alertmanager. Most importantly, they should understand the recovery process so they can respond quickly during an incident.
